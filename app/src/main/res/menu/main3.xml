@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/copy"
+        android:orderInCategory="100"
+        android:title="@string/copy"
+        android:icon="@drawable/ic_copy"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/cut"
+        android:orderInCategory="100"
+        android:title="@string/cut"
+        android:icon="@drawable/ic_cut"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/delete"
+        android:orderInCategory="100"
+        android:title="@string/delete"
+        android:icon="@drawable/ic_delete"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/rename"
+        android:orderInCategory="100"
+        android:title="@string/rename"
+        android:icon="@drawable/ic_rename"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/share"
+        android:orderInCategory="100"
+        android:title="@string/share"
+        android:icon="@drawable/ic_share"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/search"
+        android:orderInCategory="100"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/close"
+        android:orderInCategory="100"
+        android:title="@string/close"
+        android:icon="@drawable/ic_close"
+        app:showAsAction="always"/>
+
+</menu>

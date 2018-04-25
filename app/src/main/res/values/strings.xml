@@ -1,0 +1,32 @@
+<resources>
+    <string name="app_name">Nailsoft File Manager</string>
+    <string name="title_home">Home</string>
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_notifications">Notifications</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
+    <string name="request_permissions_toast">File manager is useless without permissions to access your files. Isn\'t it?</string>
+    <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="copy">copy</string>
+    <string name="cut">cut</string>
+    <string name="delete">delete</string>
+    <string name="rename">rename</string>
+    <string name="share">share</string>
+    <string name="search">search</string>
+    <string name="close">close</string>
+    <string name="delete_dialog_title">Deleting files</string>
+    <string name="delete_single_dir_message">Delete directory \'%s\' with all files and subdirectories permanently?</string>
+    <string name="delete_single_file_message">Delete file \'%s\' permanently?</string>
+    <string name="delete_format_many_message">Delete %d objects permanently?</string>
+    <string name="rename_dialog_title">Rename</string>
+    <string name="open_file">Open \'%s\' with</string>
+    <string name="file_size_format">size: %s</string>
+    <string name="explanation_permission">File manager is useless if not granted access to storage</string>
+</resources>

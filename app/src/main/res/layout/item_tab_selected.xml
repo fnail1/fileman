@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:background="@drawable/bg_tab"
+              android:minWidth="128dp"
+              android:orientation="vertical"
+              android:layout_margin="@dimen/padding_quoter"
+              android:paddingTop="@dimen/padding_quoter"
+              android:paddingBottom="@dimen/padding_quoter"
+              android:paddingStart="@dimen/padding_half"
+              android:paddingEnd="@dimen/padding_half"
+    >
+
+    <TextView
+        android:id="@+id/subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="start"
+        android:maxLength="56"
+        android:maxWidth="200dp"
+        android:singleLine="true"
+        android:textAppearance="@style/FileInfoTextAppearance"
+        android:textSize="4pt"
+        tools:text="ka;lsjh ksaKJDFASHdkufahsaklsjdhfakls sdjSJDHFALSK JDL AJFL JDFHlasdjhf"
+        />
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="200dp"
+        android:ellipsize="marquee"
+        android:textAppearance="@style/DirectoryNameTextAppearance"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:freezesText="true"
+        tools:text="klasdjhf"/>
+</LinearLayout>

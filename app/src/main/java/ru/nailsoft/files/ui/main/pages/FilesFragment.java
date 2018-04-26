@@ -18,11 +18,13 @@ import ru.nailsoft.files.R;
 import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.model.MainActivityData;
 import ru.nailsoft.files.model.TabData;
+import ru.nailsoft.files.service.Clipboard;
 import ru.nailsoft.files.ui.base.BaseFragment;
 
+import static ru.nailsoft.files.App.clipboard;
 import static ru.nailsoft.files.App.data;
 
-public class FilesFragment extends BaseFragment implements MainActivityData.TabDataChangeEventHandler, FileViewHolder.MasterInterface, MainActivityData.TabsChangeEventHandler, MainActivityData.SelectionChangeEventHandler {
+public class FilesFragment extends BaseFragment implements MainActivityData.TabDataChangeEventHandler, FileViewHolder.MasterInterface, MainActivityData.TabsChangeEventHandler, MainActivityData.SelectionChangeEventHandler, Clipboard.ClipboardEventHandler {
     public static final String ARG_PAGE_INDEX = "page_index";
 
     private int index;
@@ -67,6 +69,7 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
         data().tabDataChanged.add(this);
         data().tabsChanged.add(this);
         data().selectionChanged.add(this);
+        clipboard().changedEvent.add(this);
     }
 
     @Override
@@ -75,6 +78,7 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
         data().tabDataChanged.remove(this);
         data().tabsChanged.add(this);
         data().selectionChanged.remove(this);
+        clipboard().changedEvent.remove(this);
     }
 
     @Override
@@ -138,9 +142,13 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
 
     @Override
     public void onSelectionChanged(TabData args) {
-        if (args != data)
-            return;
+        if (args == data || args.getPath().equals(data.getPath())) {
+            list.getAdapter().notifyDataSetChanged();
+        }
+    }
 
+    @Override
+    public void onClipboardChanged(Clipboard.ClipboardEventArgs args) {
         list.getAdapter().notifyDataSetChanged();
     }
 

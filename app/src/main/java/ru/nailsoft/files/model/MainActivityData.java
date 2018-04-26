@@ -51,7 +51,7 @@ public class MainActivityData {
     public TabData newTab(File path) {
         TabData tab = new TabData(this);
         tab.history.push(new TabData.HistoryItem(path));
-        _tabs.add(0, tab);
+        _tabs.add(tab);
         onTabPathChanged(tab);
         return tab;
     }

@@ -348,16 +348,16 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         }
     }
 
-    public static class CloseItem extends CommonItem {
-        CloseItem(Context context) {
-            super(context.getResources().getString(R.string.close), null, R.drawable.ic_close_primary);
-        }
-
-        @Override
-        public void onClick() {
-            callback.closeFabMenu();
-        }
-    }
+//    public static class CloseItem extends CommonItem {
+//        CloseItem(Context context) {
+//            super(context.getResources().getString(R.string.close), null, R.drawable.ic_close_primary);
+//        }
+//
+//        @Override
+//        public void onClick() {
+//            callback.closeFabMenu();
+//        }
+//    }
 
     public static class PasteAllItem extends CommonItem {
         PasteAllItem(Context context) {

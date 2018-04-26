@@ -38,6 +38,7 @@ import ru.nailsoft.files.R;
 import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.model.MainActivityData;
 import ru.nailsoft.files.model.TabData;
+import ru.nailsoft.files.service.Clipboard;
 import ru.nailsoft.files.service.ClipboardItem;
 import ru.nailsoft.files.toolkit.io.FileOpException;
 import ru.nailsoft.files.toolkit.io.FileUtils;
@@ -57,7 +58,7 @@ public class MainActivity extends BaseActivity
         MainActivityData.TabDataChangeEventHandler,
         FilesFragment.MasterInterface,
         TabsTitlesAdapter.MasterInterface,
-        MainActivityData.SelectionChangeEventHandler {
+        MainActivityData.SelectionChangeEventHandler, Clipboard.ClipboardEventHandler {
 
     @BindView(R.id.path) LinearLayout path;
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -142,6 +143,7 @@ public class MainActivity extends BaseActivity
         data().tabsChanged.add(this);
         data().tabDataChanged.add(this);
         data().selectionChanged.add(this);
+        clipboard().changedEvent.add(this);
         rebuildPath();
     }
 
@@ -151,6 +153,7 @@ public class MainActivity extends BaseActivity
         data().tabsChanged.remove(this);
         data().tabDataChanged.remove(this);
         data().selectionChanged.remove(this);
+        clipboard().changedEvent.remove(this);
     }
 
     @Override
@@ -290,10 +293,10 @@ public class MainActivity extends BaseActivity
         tab.selection.clear();
 
         tab.onDataChanged();
-        onClipboardChanged();
     }
 
-    private void onClipboardChanged() {
+    @Override
+    public void onClipboardChanged(Clipboard.ClipboardEventArgs args) {
         if (fabMenuOpen) {
             buildFabMenu(true);
         } else {
@@ -456,7 +459,6 @@ public class MainActivity extends BaseActivity
     @Override
     public void clearClipboard() {
         clipboard().clear();
-        onClipboardChanged();
     }
 
     private void buildFabMenu(boolean scrollToEnd) {
@@ -480,7 +482,7 @@ public class MainActivity extends BaseActivity
         }
 
         fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
-        fabMenuItems.add(new FabMenuAdapter.CloseItem(this));
+//        fabMenuItems.add(new FabMenuAdapter.CloseItem(this));
         fabMenuAdapter.setItems(fabMenuItems);
 
         if (scrollToEnd)

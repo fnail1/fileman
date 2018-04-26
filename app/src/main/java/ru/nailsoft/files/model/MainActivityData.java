@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import ru.nailsoft.files.service.FileInfoCache;
 import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.toolkit.events.ObservableEvent;
 
@@ -42,6 +43,7 @@ public class MainActivityData {
 
     private final LinkedList<TabData> _tabs = new LinkedList<>();
     public final List<TabData> tabs = Collections.unmodifiableList(_tabs);
+    private final FileInfoCache cache = new FileInfoCache();
 
     public MainActivityData() {
         newTab(Environment.getExternalStorageDirectory());
@@ -60,18 +62,30 @@ public class MainActivityData {
     public void onTabPathChanged(TabData tab) {
         updateTabNamesSync();
         tabsChanged.fire(tab);
+        tab.files = cache.get(tab.getPath());
+        boolean fromCache = tab.files != null;
+        if (fromCache)
+            onTabDataChanged(tab);
+        else
+            tab.files = Collections.emptyList();
 
         ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(() -> {
-            readFiles(tab);
+            List<FileItem> files = readFiles(tab);
 
-            ThreadPool.UI.post(() -> onTabDataChanged(tab));
+            if (tab.files.isEmpty() && !files.isEmpty()) {
+                cache.put(tab.getPath(), files);
+                ThreadPool.UI.post(() -> {
+                    tab.files = files;
+                    onTabDataChanged(tab);
+                });
+            }
 
-            List<FileItem> files = tab.files;
+
             long t0 = SystemClock.elapsedRealtime();
             for (int i = 0; i < files.size(); i++) {
                 FileItem file = files.get(i);
                 file.resolveDetails();
-                if (((i + 1) % 10) == 9) {
+                if (!fromCache && ((i + 1) % 20) == 9) {
                     long t = SystemClock.elapsedRealtime();
                     if (t - t0 > 100) {
                         ThreadPool.UI.post(() -> onTabDataChanged(tab));
@@ -79,22 +93,30 @@ public class MainActivityData {
                     }
                 }
             }
+
+            ThreadPool.UI.post(() -> {
+                tab.files = files;
+                onTabDataChanged(tab);
+            });
         });
     }
 
-    private void readFiles(TabData tab) {
-        File[] files = tab.getPath().listFiles();
+    private List<FileItem> readFiles(TabData tab) {
+        File path = tab.getPath();
+        File[] files = path.listFiles();
         if (files != null) {
-            tab.files = query(files).select(FileItem::new).toList();
-            Collections.sort(tab.files, (o1, o2) -> {
+            List<FileItem> out = (List<FileItem>) query(files).select(FileItem::new).toList();
+
+            Collections.sort(out, (o1, o2) -> {
                 if (o1.directory == o2.directory)
                     return o1.order.compareTo(o2.order);
                 if (o1.directory)
                     return -1;
                 return 1;
             });
+            return out;
         } else {
-            tab.files = Collections.emptyList();
+            return Collections.emptyList();
         }
     }
 

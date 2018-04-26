@@ -42,9 +42,11 @@
     </style>
 
     <style name="AlertDialogCustom" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:colorAccent" tools:targetApi="lollipop">@color/colorPrimary</item>
-        <item name="colorAccent">@color/colorPrimary</item>
+        <item name="android:textColor">@color/colorPrimary</item>
+        <item name="colorAccent">@color/colorPrimaryDark</item>
+        <item name="android:editTextColor">@color/colorPrimary</item>
     </style>
+
 
     <style name="EditTextAppearance">
         <item name="android:textColor">@color/colorPrimaryDark</item>

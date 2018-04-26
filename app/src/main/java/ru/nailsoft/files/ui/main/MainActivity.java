@@ -18,8 +18,9 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.Transformation;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -289,8 +290,25 @@ public class MainActivity extends BaseActivity
         tab.selection.clear();
 
         tab.onDataChanged();
-        if (fabMenuOpen)
+        onClipboardChanged();
+    }
+
+    private void onClipboardChanged() {
+        if (fabMenuOpen) {
             buildFabMenu(true);
+        } else {
+            Animation selectionChangedAnimation = new Animation() {
+                @Override
+                protected void applyTransformation(float alpha, Transformation t) {
+                    super.applyTransformation(alpha, t);
+                    float scale = (float) (1 + 0.2 * (1 - 2 * Math.abs(alpha - 0.5)));
+                    fab.setScaleX(scale);
+                    fab.setScaleY(scale);
+                }
+            };
+            selectionChangedAnimation.setDuration(400);
+            fab.startAnimation(selectionChangedAnimation);
+        }
     }
 
     void onDeleteClick() {
@@ -317,6 +335,7 @@ public class MainActivity extends BaseActivity
                 .setPositiveButton(R.string.delete, (dialog, which) -> {
                     for (FileItem fileItem : tab.selection) {
                         FileUtils.deleteRecursive(fileItem.file);
+                        tab.files.remove(fileItem);
                     }
                     tab.selection.clear();
                     tab.onDataChanged();
@@ -333,7 +352,7 @@ public class MainActivity extends BaseActivity
         text.setText(fileItem.file.getName());
 
         AlertDialog alertDialog = new AlertDialog.Builder(this)
-                .setTitle(R.string.rename_dialog_title)
+                .setTitle(R.string.rename)
                 .setView(view)
                 .setPositiveButton(R.string.rename, (dialog, which) -> {
                     try {
@@ -397,12 +416,14 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void selectAll() {
-
+        currentTab().selectAll();
+        closeFabMenu();
     }
 
     @Override
     public void createNewDirectory() {
-
+        NewDirectoryDialog.show(this, currentTab());
+        closeFabMenu();
     }
 
     @Override
@@ -422,9 +443,7 @@ public class MainActivity extends BaseActivity
         fabBackground.animate()
                 .alpha(0)
                 .setDuration(200)
-                .withEndAction(() -> {
-                    fabBackground.setVisibility(View.GONE);
-                });
+                .withEndAction(() -> fabBackground.setVisibility(View.GONE));
 
         fab.show();
     }
@@ -436,19 +455,20 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void clearClipboard() {
-
+        clipboard().clear();
+        onClipboardChanged();
     }
 
     private void buildFabMenu(boolean scrollToEnd) {
 
         ArrayList<FabMenuAdapter.Item> fabMenuItems = new ArrayList<>(7 + clipboard().size());
-        fabMenuItems.add(new FabMenuAdapter.NewDirectoryItem());
+        fabMenuItems.add(new FabMenuAdapter.NewDirectoryItem(this));
         fabMenuItems.add(new FabMenuAdapter.SelectAllItem());
 
         if (!clipboard().isEmpty()) {
             fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
-            fabMenuItems.add(new FabMenuAdapter.PasteAllItem());
-            fabMenuItems.add(new FabMenuAdapter.ClearItem());
+            fabMenuItems.add(new FabMenuAdapter.PasteAllItem(this));
+            fabMenuItems.add(new FabMenuAdapter.ClearItem(this));
 
             fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
             for (ClipboardItem fileItem : clipboard().values()) {
@@ -460,7 +480,7 @@ public class MainActivity extends BaseActivity
         }
 
         fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
-        fabMenuItems.add(new FabMenuAdapter.CloseItem());
+        fabMenuItems.add(new FabMenuAdapter.CloseItem(this));
         fabMenuAdapter.setItems(fabMenuItems);
 
         if (scrollToEnd)
@@ -505,9 +525,7 @@ public class MainActivity extends BaseActivity
             p = p.getParentFile();
         } while (!p.getName().isEmpty());
 
-        pathScroll.post(() -> {
-            pathScroll.fullScroll(HorizontalScrollView.FOCUS_RIGHT);
-        });
+        pathScroll.post(() -> pathScroll.fullScroll(HorizontalScrollView.FOCUS_RIGHT));
     }
 
     private void onPathItemClick(View view) {
@@ -532,7 +550,8 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void onSelectionChanged(TabData args) {
-        switch (args.selection.size()) {
+        int selectionSize = args.selection.size();
+        switch (selectionSize) {
             case 0:
                 toggleActionMode(ActionMode.NONE);
                 break;
@@ -549,6 +568,7 @@ public class MainActivity extends BaseActivity
     public void onFabMenuBackgroundClick() {
         closeFabMenu();
     }
+
 
     public enum ActionMode {
         NONE, SINGLE, MANY

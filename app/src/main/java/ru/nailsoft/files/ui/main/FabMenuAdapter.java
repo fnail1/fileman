@@ -1,9 +1,9 @@
 package ru.nailsoft.files.ui.main;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +35,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     private LayoutInflater inflater;
     private final MasterInterface master;
 
-    public FabMenuAdapter(MasterInterface master) {
+    FabMenuAdapter(MasterInterface master) {
         this.master = master;
     }
 
@@ -45,7 +45,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         list = recyclerView;
         context = list.getContext();
         inflater = LayoutInflater.from(context);
@@ -54,7 +54,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         inflater = null;
         context = null;
@@ -66,8 +66,9 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         return data.get(position).viewType();
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case R.layout.item_fab_menu_simple:
                 return new SimpleItemViewHolder(parent);
@@ -80,7 +81,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         Item item = data.get(position);
         item.setCallback(master);
         ((ItemViewHolder) holder).bind(item);
@@ -93,15 +94,12 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
     private static class ItemViewHolder extends RecyclerView.ViewHolder {
 
-        public ItemViewHolder(View itemView) {
+        ItemViewHolder(View itemView) {
             super(itemView);
         }
 
         public void bind(Item item) {
         }
-    }
-
-    private static class IconHolder {
     }
 
     protected class SimpleItemViewHolder extends ItemViewHolder
@@ -117,11 +115,11 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         @BindView(R.id.subtitle)
         TextView subtitle;
 
-        public SimpleItemViewHolder(ViewGroup parent) {
+        SimpleItemViewHolder(ViewGroup parent) {
             this(inflater.inflate(R.layout.item_fab_menu_simple, parent, false));
         }
 
-        public SimpleItemViewHolder(View itemView) {
+        SimpleItemViewHolder(View itemView) {
             super(itemView);
             itemView.setOnClickListener(this);
             ButterKnife.bind(this, itemView);
@@ -130,7 +128,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         public void bind(Item item) {
             this.item = (SimpleItem) item;
 
-            this.item.attachIcon(icon);
+            this.item.bindIcon(icon);
 
             title.setText(this.item.getTitle());
             String subtitle = this.item.getSubtitle();
@@ -156,7 +154,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         ImageView expand;
 
 
-        public ExpandableItemViewHolder(ViewGroup parent) {
+        ExpandableItemViewHolder(ViewGroup parent) {
             super(inflater.inflate(R.layout.item_fab_menu_expandable, parent, false));
         }
 
@@ -175,12 +173,12 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     public static abstract class Item {
-        protected MasterInterface callback;
+        MasterInterface callback;
 
         @LayoutRes
         public abstract int viewType();
 
-        public void setCallback(MasterInterface callback) {
+        void setCallback(MasterInterface callback) {
             this.callback = callback;
         }
     }
@@ -198,7 +196,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         private final String title;
         private final String subtitle;
 
-        public SimpleItem(String title, String subtitle) {
+        SimpleItem(String title, String subtitle) {
             this.title = title;
             this.subtitle = subtitle;
         }
@@ -209,7 +207,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
             return R.layout.item_fab_menu_simple;
         }
 
-        public abstract void attachIcon(ImageView imageView);
+        public abstract void bindIcon(ImageView imageView);
 
         public String getTitle() {
             return title;
@@ -232,7 +230,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         }
 
         @Override
-        public void attachIcon(ImageView imageView) {
+        public void bindIcon(ImageView imageView) {
             icons().attach(imageView, file.file)
                     .size(screenMetrics().menuIcon)
                     .commit();
@@ -267,7 +265,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     public static abstract class ExpandableItem extends SimpleItem {
 
 
-        public ExpandableItem(String title, String subtitle) {
+        ExpandableItem(String title, String subtitle) {
             super(title, subtitle);
         }
 
@@ -284,7 +282,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
         private final ClipboardItem file;
 
-        public DirectoryItem(ClipboardItem file) {
+        DirectoryItem(ClipboardItem file) {
             super(file.file.name, file.file.file.getAbsolutePath());
 
             this.file = file;
@@ -295,7 +293,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         }
 
         @Override
-        public void attachIcon(ImageView imageView) {
+        public void bindIcon(ImageView imageView) {
             icons().attach(imageView, file.file)
                     .size(screenMetrics().menuIcon)
                     .commit();
@@ -317,19 +315,19 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
         private final int icon;
 
-        public CommonItem(String title, String subtitle, @DrawableRes int icon) {
+        CommonItem(String title, String subtitle, @DrawableRes int icon) {
             super(title, subtitle);
             this.icon = icon;
         }
 
         @Override
-        public void attachIcon(ImageView imageView) {
+        public void bindIcon(ImageView imageView) {
             imageView.setImageResource(icon);
         }
     }
 
     public static class SelectAllItem extends CommonItem {
-        public SelectAllItem() {
+        SelectAllItem() {
             super("Select All", null, R.drawable.ic_done_all_primary);
         }
 
@@ -340,8 +338,8 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     public static class NewDirectoryItem extends CommonItem {
-        public NewDirectoryItem() {
-            super("New directory", null, R.drawable.ic_add_primary);
+        NewDirectoryItem(Context context) {
+            super(context.getResources().getString(R.string.new_directory), null, R.drawable.ic_add_primary);
         }
 
         @Override
@@ -351,8 +349,8 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     public static class CloseItem extends CommonItem {
-        public CloseItem() {
-            super("Close", null, R.drawable.ic_close_primary);
+        CloseItem(Context context) {
+            super(context.getResources().getString(R.string.close), null, R.drawable.ic_close_primary);
         }
 
         @Override
@@ -362,8 +360,8 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     public static class PasteAllItem extends CommonItem {
-        public PasteAllItem() {
-            super("Paste all", null, R.drawable.ic_paste);
+        PasteAllItem(Context context) {
+            super(context.getString(R.string.pasteAll), null, R.drawable.ic_paste);
         }
 
         @Override
@@ -374,8 +372,8 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
     public static class ClearItem extends CommonItem {
 
-        public ClearItem() {
-            super("Clear", null, R.drawable.ic_clear);
+        ClearItem(Context context) {
+            super(context.getResources().getString(R.string.clear), null, R.drawable.ic_clear);
         }
 
         @Override

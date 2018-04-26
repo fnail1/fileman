@@ -3,6 +3,7 @@ package ru.nailsoft.files.model;
 import android.os.Parcelable;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +46,17 @@ public class TabData {
         return !selected;
     }
 
+    public void selectAll() {
+        selectAll(files);
+    }
+
+    @SuppressWarnings("WeakerAccess")
+    public void selectAll(Collection<FileItem> file) {
+        selection.addAll(file);
+        data.onSelectionChanged(this);
+    }
+
+
     public void onDataChanged() {
         data.onTabDataChanged(this);
     }
@@ -67,9 +79,9 @@ public class TabData {
 
     public static class HistoryItem {
         public final File path;
-        public Parcelable linearLayoutManagerSavedState;
+        Parcelable linearLayoutManagerSavedState;
 
-        public HistoryItem(File path) {
+        HistoryItem(File path) {
             this.path = path;
         }
     }

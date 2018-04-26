@@ -22,7 +22,7 @@ import ru.nailsoft.files.ui.base.BaseFragment;
 
 import static ru.nailsoft.files.App.data;
 
-public class FilesFragment extends BaseFragment implements MainActivityData.TabDataChangeEventHandler, FileViewHolder.MasterInterface, MainActivityData.TabsChangeEventHandler {
+public class FilesFragment extends BaseFragment implements MainActivityData.TabDataChangeEventHandler, FileViewHolder.MasterInterface, MainActivityData.TabsChangeEventHandler, MainActivityData.SelectionChangeEventHandler {
     public static final String ARG_PAGE_INDEX = "page_index";
 
     private int index;
@@ -66,6 +66,7 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
         super.onResume();
         data().tabDataChanged.add(this);
         data().tabsChanged.add(this);
+        data().selectionChanged.add(this);
     }
 
     @Override
@@ -73,6 +74,7 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
         super.onPause();
         data().tabDataChanged.remove(this);
         data().tabsChanged.add(this);
+        data().selectionChanged.remove(this);
     }
 
     @Override
@@ -132,6 +134,14 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
             data = actual;
             list.setAdapter(new TabAdapter(data, this));
         }
+    }
+
+    @Override
+    public void onSelectionChanged(TabData args) {
+        if (args != data)
+            return;
+
+        list.getAdapter().notifyDataSetChanged();
     }
 
     public interface MasterInterface {

@@ -38,6 +38,7 @@ import static ru.nailsoft.files.App.app;
 import static ru.nailsoft.files.App.screenMetrics;
 import static ru.nailsoft.files.diagnostics.Logger.logV;
 
+@SuppressWarnings({"unused", "WeakerAccess"})
 public final class IconRequest<TView> implements Runnable {
     private final static AtomicInteger counter = new AtomicInteger();
     private final static HashSet<String> history = new HashSet<>();
@@ -53,11 +54,11 @@ public final class IconRequest<TView> implements Runnable {
     public long doNotAnimateBefore;
     private String cacheKey;
 
-    public IconRequest(IconsManager pm,
-                       @Nullable Target<TView> viewHolder,
-                       @NonNull FileItem file,
-                       ScreenMetrics.Size size,
-                       @Nullable Func<Drawable, Drawable> extraEffect) {
+    IconRequest(IconsManager pm,
+                @Nullable Target<TView> viewHolder,
+                @NonNull FileItem file,
+                ScreenMetrics.Size size,
+                @Nullable Func<Drawable, Drawable> extraEffect) {
         startTs = SystemClock.elapsedRealtime();
         name = counter.incrementAndGet();
 
@@ -96,7 +97,7 @@ public final class IconRequest<TView> implements Runnable {
         Bitmap bitmap = iconsManager.cache.get(cacheKey);
         boolean complete = bitmap != null;
 
-        if (complete && !file.ext.isEmpty())
+        if (!complete && !file.ext.isEmpty())
             bitmap = iconsManager.cache.get(file.ext);
 
         if (bitmap != null) {

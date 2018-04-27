@@ -105,7 +105,7 @@ public class MainActivityData {
         File path = tab.getPath();
         File[] files = path.listFiles();
         if (files != null) {
-            List<FileItem> out = (List<FileItem>) query(files).select(FileItem::new).toList();
+            List<FileItem> out = query(files).select(FileItem::new).toList();
 
             Collections.sort(out, (o1, o2) -> {
                 if (o1.directory == o2.directory)

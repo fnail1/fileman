@@ -52,13 +52,13 @@ import static ru.nailsoft.files.App.data;
 
 public class MainActivity extends BaseActivity
         implements
-        NavigationView.OnNavigationItemSelectedListener,
         FabMenuAdapter.MasterInterface,
         MainActivityData.TabsChangeEventHandler,
         MainActivityData.TabDataChangeEventHandler,
         FilesFragment.MasterInterface,
         TabsTitlesAdapter.MasterInterface,
-        MainActivityData.SelectionChangeEventHandler, Clipboard.ClipboardEventHandler {
+        MainActivityData.SelectionChangeEventHandler,
+        Clipboard.ClipboardEventHandler {
 
     @BindView(R.id.path) LinearLayout path;
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -83,6 +83,7 @@ public class MainActivity extends BaseActivity
     private FabMenuAdapter fabMenuAdapter;
     private boolean fabMenuOpen = false;
     private ActionMode actionMode;
+    private SidebarViewHolder sidebarViewHolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +92,7 @@ public class MainActivity extends BaseActivity
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawerLayout.addDrawerListener(toggle);
-        toggle.syncState();
 
-        navView.setNavigationItemSelectedListener(this);
         fabMenuAdapter = new FabMenuAdapter(this);
         fabMenu.setLayoutManager(new LinearLayoutManager(this));
         fabMenu.setAdapter(fabMenuAdapter);
@@ -123,6 +119,8 @@ public class MainActivity extends BaseActivity
         });
         tabs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         tabs.setAdapter(new TabsTitlesAdapter(this, data()));
+
+        sidebarViewHolder = new SidebarViewHolder(this, drawerLayout, toolbar, navView);
 
         requestPermissions(ReqCodes.STORAGE_PERMISSION.code(), R.string.explanation_permission,
                 Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -229,38 +227,6 @@ public class MainActivity extends BaseActivity
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        switch (id) {
-            case R.id.nav_camera:
-                // Handle the camera action
-                break;
-            case R.id.nav_gallery:
-
-                break;
-            case R.id.nav_slideshow:
-
-                break;
-            case R.id.nav_manage:
-
-                break;
-            case R.id.nav_share:
-
-                break;
-            case R.id.nav_send:
-
-                break;
-        }
-
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
     }
 
     @OnClick(R.id.fab)

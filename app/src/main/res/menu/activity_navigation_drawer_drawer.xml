@@ -4,22 +4,27 @@
       tools:showIn="navigation_view">
 
     <group android:checkableBehavior="single">
+
         <item
             android:id="@+id/nav_camera"
             android:icon="@drawable/ic_menu_camera"
-            android:title="Import"/>
-        <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery"/>
-        <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow"/>
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools"/>
+            android:title="@string/order"
+            android:enabled="true"
+            android:theme="@style/AppTheme">
+            <menu>
+                <item android:id="@+id/order_name"
+                    android:title="@string/name"/>
+
+                <item android:id="@+id/order_create"
+                      android:title="@string/date_created"/>
+
+                <item android:id="@+id/order_modified"
+                      android:title="@string/date_modified"/>
+
+                <item android:id="@+id/order_size"
+                      android:title="@string/size"/>
+            </menu>
+        </item>
     </group>
 
     <item android:title="Communicate">

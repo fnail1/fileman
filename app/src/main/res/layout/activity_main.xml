@@ -45,16 +45,16 @@
                         android:orientation="horizontal">
 
                         <!--<TextView-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:text="/"-->
-                            <!--android:textAppearance="@style/TitleTextAppearance"/>-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="/"-->
+                        <!--android:textAppearance="@style/TitleTextAppearance"/>-->
                         <!--...-->
                         <!--<TextView-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:text="data/"-->
-                            <!--android:textAppearance="@style/TitleTextAppearance"/>-->
+                        <!--android:layout_width="wrap_content"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="data/"-->
+                        <!--android:textAppearance="@style/TitleTextAppearance"/>-->
 
                     </LinearLayout>
 
@@ -134,8 +134,9 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_navigation_drawer"
+        app:itemTextColor="#ff0000"
+        app:itemIconTint="#00ff00"
         app:menu="@menu/activity_navigation_drawer_drawer"
-
         />
     <!--tools:visibility="gone"-->
 

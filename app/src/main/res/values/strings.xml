@@ -14,6 +14,14 @@
     <string name="pasteAll">Paste all</string>
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
+    <string name="make">Make</string>
+    <string name="order">Order</string>
+    <string name="name">Name</string>
+    <string name="size">Size</string>
+
+    <string name="new_directory">New directory</string>
+    <string name="date_created">Date created</string>
+    <string name="date_modified">Date modified</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -30,6 +38,4 @@
     <string name="open_file">Open \'%s\' with</string>
     <string name="file_size_format">size: %s</string>
     <string name="explanation_permission">File manager is useless if not granted access to storage</string>
-    <string name="new_directory">New directory</string>
-    <string name="make">Make</string>
 </resources>

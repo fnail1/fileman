@@ -54,7 +54,7 @@ public class FileItem {
         directory = isDirectory;
         name = file.getName();
         hidden = name.charAt(0) == '.';
-        order = hidden ? name.substring(1) : name;
+        order = (hidden ? name.substring(1) : name).toLowerCase();
         int idx = name.lastIndexOf('.');
         if (idx > 0) {
             ext = name.substring(idx);

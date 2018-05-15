@@ -3,13 +3,11 @@ package ru.nailsoft.files.ui.main;
 import android.Manifest;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,14 +38,17 @@ import ru.nailsoft.files.model.MainActivityData;
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.service.Clipboard;
 import ru.nailsoft.files.service.ClipboardItem;
+import ru.nailsoft.files.service.CopyTask;
 import ru.nailsoft.files.toolkit.io.FileOpException;
 import ru.nailsoft.files.toolkit.io.FileUtils;
 import ru.nailsoft.files.ui.BaseActivity;
+import ru.nailsoft.files.ui.CopyDialogFragment;
 import ru.nailsoft.files.ui.ReqCodes;
 import ru.nailsoft.files.ui.main.pages.FilesFragment;
 import ru.nailsoft.files.utils.Utils;
 
 import static ru.nailsoft.files.App.clipboard;
+import static ru.nailsoft.files.App.copy;
 import static ru.nailsoft.files.App.data;
 
 public class MainActivity extends BaseActivity
@@ -314,7 +315,7 @@ public class MainActivity extends BaseActivity
     }
 
     void onRenameClick() {
-        View view = LayoutInflater.from(this).inflate(R.layout.dlg_rename, null);
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_rename, null);
         TabData tab = data().tabs.get(pages.getCurrentItem());
         FileItem fileItem = tab.selection.iterator().next();
         EditText text = view.findViewById(R.id.text);
@@ -419,7 +420,10 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void pasteAll() {
-
+        CopyTask task = new CopyTask(clipboard().values(), currentTab());
+        copy().enqueue(task);
+        CopyDialogFragment.show(this);
+        closeFabMenu();
     }
 
     @Override
@@ -470,9 +474,10 @@ public class MainActivity extends BaseActivity
     public void onTabDataChanged(MainActivityData sender, TabData args) {
         if (args != data().tabs.get(pages.getCurrentItem()))
             return;
-        rebuildPath(args);
-
-        fab.show();
+        runOnUiThread(() -> {
+            rebuildPath(args);
+            fab.show();
+        });
     }
 
     private void rebuildPath() {

@@ -3,94 +3,112 @@ package ru.nailsoft.files.service;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
+import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.toolkit.io.FileOpException;
 import ru.nailsoft.files.toolkit.io.FileUtils;
 
+import static ru.nailsoft.files.App.copy;
+
 public class CopyTask implements Runnable {
 
-    public static void listFiles(File src, File dst, ArrayList<CopyItem> out, boolean removeSource) {
 
-        dst = new File(dst, src.getName());
+    private static void listFiles(ClipboardItem src, File srcFile, File dst, ArrayList<CopyItem> out) {
 
-        if (src.isDirectory()) {
-            if (removeSource)
-                out.add(new MoveDir(src, dst));
-            else
-                out.add(new CopyDir(src, dst));
+        dst = new File(dst, srcFile.getName());
 
-            for (File file : src.listFiles()) {
-                listFiles(file, dst, out, removeSource);
+        if (srcFile.isDirectory()) {
+            out.add(new CopyDir(src, srcFile, dst));
+
+            if (!src.removeSource) {
+                for (File file : srcFile.listFiles()) {
+                    listFiles(src, file, dst, out);
+                }
             }
         } else {
-            if (removeSource)
-                out.add(new MoveFile(src, dst));
-            else
-                out.add(new CopyFile(src, dst));
+            out.add(new CopyFile(src, srcFile, dst));
         }
     }
 
+    private final Collection<ClipboardItem> src;
+    private final TabData dst;
+    private State state = State.NEW;
+    private int progress = 0;
+    private int count;
+    private File currentFile;
 
-    private final File[] src;
-    private final File dst;
-    private final boolean removeSource;
-    private boolean override;
-
-    public CopyTask(File[] src, File dst, boolean removeSource, boolean overrideIfExist) {
+    public CopyTask(Collection<ClipboardItem> src, TabData dst) {
         this.src = src;
         this.dst = dst;
-        this.removeSource = removeSource;
-        this.override = overrideIfExist;
     }
 
     @Override
     public void run() {
-        ArrayList<CopyItem> queue = new ArrayList<>(src.length);
-        for (File file : src) {
-            listFiles(file, dst, queue, removeSource);
+        copy().onStart(this);
+        state = State.ANALIZE;
+        ArrayList<CopyItem> queue = new ArrayList<>(src.size());
+        for (ClipboardItem file : src) {
+            listFiles(file, file.file.file, dst.getPath(), queue);
+            currentFile = file.file.file;
         }
 
+        count = queue.size();
         for (CopyItem item : queue) {
             item.prepare(this);
+            currentFile = item.src;
         }
 
+        state = State.PROGRESS;
         for (CopyItem item : queue) {
             try {
+                progress++;
+                currentFile = item.src;
                 item.doCopy(this);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (FileOpException e) {
+            } catch (IOException | FileOpException e) {
                 e.printStackTrace();
             }
         }
 
+        state = State.FINALIZE;
         for (CopyItem item : queue) {
             item.finalize(this);
+            currentFile = item.src;
         }
+        for (ClipboardItem file : src) {
+            dst.onPaste(file.file);
+        }
+        state = State.COMPLETE;
+    }
+
+    public String getCurrentFile() {
+        return currentFile.getName();
     }
 
     private static abstract class CopyItem {
-        public final File src;
-        public final File dst;
+        protected final ClipboardItem clipboardItem;
+        protected final File src;
+        protected final File dst;
 
-        private CopyItem(File src, File dst) {
+        private CopyItem(ClipboardItem clipboardItem, File src, File dst) {
+            this.clipboardItem = clipboardItem;
             this.src = src;
             this.dst = dst;
         }
 
-        public void doCopy(CopyTask task) throws IOException, FileOpException {
-            if (dst.exists() && !task.override && !task.requestOverride(src))
+        void doCopy(CopyTask task) throws IOException, FileOpException {
+            if (dst.exists() && !task.requestOverride(src))
                 return;
 
             performCopy(task);
         }
 
-        public void prepare(CopyTask task) {
+        void prepare(CopyTask task) {
         }
 
-        public abstract void performCopy(CopyTask task) throws IOException, FileOpException;
+        protected abstract void performCopy(CopyTask task) throws IOException, FileOpException;
 
-        public void finalize(CopyTask task) {
+        protected void finalize(CopyTask task) {
         }
 
     }
@@ -100,48 +118,68 @@ public class CopyTask implements Runnable {
     }
 
     private static class CopyFile extends CopyItem {
-        private CopyFile(File src, File dst) {
-            super(src, dst);
-        }
 
-        @Override
-        public void performCopy(CopyTask task) throws IOException {
-            FileUtils.copyFile(src, dst);
-        }
-    }
-
-    private static class CopyDir extends CopyItem {
-        public CopyDir(File src, File dst) {
-            super(src, dst);
-        }
-
-        @Override
-        public void performCopy(CopyTask task) throws FileOpException {
-            if (!dst.mkdir())
-                throw new FileOpException(FileOpException.FileOp.MKDIR, dst);
-        }
-    }
-
-    private static class MoveDir extends CopyDir {
-        public MoveDir(File src, File dst) {
-            super(src, dst);
-        }
-
-        @Override
-        public void finalize(CopyTask task) {
-            //noinspection ResultOfMethodCallIgnored
-            src.delete();
-        }
-    }
-
-    private static class MoveFile extends CopyItem {
-        public MoveFile(File src, File dst) {
-            super(src, dst);
+        private CopyFile(ClipboardItem clipboardItem, File src, File dst) {
+            super(clipboardItem, src, dst);
         }
 
         @Override
         public void performCopy(CopyTask task) throws IOException, FileOpException {
-            FileUtils.rename(src, dst);
+            if (clipboardItem.removeSource)
+                FileUtils.rename(src, dst);
+            else
+                FileUtils.copyFile(src, dst);
         }
+    }
+
+    private static class CopyDir extends CopyItem {
+        private boolean complete;
+
+        public CopyDir(ClipboardItem clipboardItem, File src, File dst) {
+            super(clipboardItem, src, dst);
+        }
+
+        @Override
+        public void performCopy(CopyTask task) throws FileOpException {
+            complete = !clipboardItem.removeSource;
+            if (clipboardItem.removeSource) {
+                try {
+                    FileUtils.rename(src, dst);
+                    complete = true;
+                } catch (FileOpException e) {
+                    throw e;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if (!dst.mkdir())
+                    throw new FileOpException(FileOpException.FileOp.MKDIR, dst);
+            }
+        }
+
+        @Override
+        public void finalize(CopyTask task) {
+            if (clipboardItem.removeSource && !complete) {
+                FileUtils.deleteRecursive(src);
+            }
+            super.finalize(task);
+        }
+    }
+
+
+    public State getState() {
+        return state;
+    }
+
+    public int getProgress() {
+        return progress;
+    }
+
+    public int getCount() {
+        return count;
+    }
+
+    public enum State {
+        NEW, ANALIZE, PROGRESS, FINALIZE, COMPLETE, FAIL
     }
 }

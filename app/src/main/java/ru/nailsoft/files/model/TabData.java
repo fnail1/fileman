@@ -69,6 +69,17 @@ public class TabData {
         onDataChanged();
     }
 
+    public void onPaste(FileItem srcFileItem) {
+        File dstFile = new File(getPath(), srcFileItem.file.getName());
+        FileItem newFileItem = new FileItem(dstFile);
+        int i = files.indexOf(newFileItem);
+        if (i < 0) {
+            files.add(newFileItem);
+            newFileItem.resolveDetails();
+            onDataChanged();
+        }
+    }
+
     public Parcelable scrollState() {
         return history.peek().linearLayoutManagerSavedState;
     }

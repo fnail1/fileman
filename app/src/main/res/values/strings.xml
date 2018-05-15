@@ -38,4 +38,5 @@
     <string name="open_file">Open \'%s\' with</string>
     <string name="file_size_format">size: %s</string>
     <string name="explanation_permission">File manager is useless if not granted access to storage</string>
+    <string name="moving_files">Moving files</string>
 </resources>

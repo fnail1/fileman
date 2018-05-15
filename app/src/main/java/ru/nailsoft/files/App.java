@@ -5,6 +5,7 @@ import android.app.Application;
 import ru.nailsoft.files.model.MainActivityData;
 import ru.nailsoft.files.service.AppStateObserver;
 import ru.nailsoft.files.service.Clipboard;
+import ru.nailsoft.files.service.CopyService;
 import ru.nailsoft.files.ui.ScreenMetrics;
 import ru.nailsoft.files.utils.photomanager.IconsManager;
 
@@ -17,6 +18,7 @@ public class App extends Application {
     private MainActivityData data;
     private ScreenMetrics screenMetrics;
     private IconsManager icons;
+    private CopyService copyService;
 
     public static App app() {
         return instance;
@@ -46,6 +48,10 @@ public class App extends Application {
         return instance.icons;
     }
 
+    public static CopyService copy() {
+        return instance.copyService;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -55,6 +61,7 @@ public class App extends Application {
         stateObserver = new AppStateObserver();
         screenMetrics = new ScreenMetrics(this);
         icons = new IconsManager(this, stateObserver, screenMetrics);
+        copyService = new CopyService();
         instance = this;
     }
 }

@@ -3,12 +3,12 @@
         android:color="@color/textColorPrimary">
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="4dp"/>
+            <corners android:radius="12dp"/>
             <!--<solid android:color="@color/colorTab"/>-->
             <gradient
                 android:angle="315"
-                android:endColor="#af404070"
-                android:startColor="#4f404070"/>
+                android:endColor="#af505070"
+                android:startColor="#4f505070"/>
         </shape>
 
     </item>

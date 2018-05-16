@@ -25,15 +25,15 @@
         <!--<item name="navigationIcon">@drawable/ic_back_button</item>-->
         <item name="titleTextAppearance">@style/TitleTextAppearance</item>
         <!--<item name="maxButtonHeight">?actionBarSize</item>-->
-        <item name="colorControlNormal">#8a000000</item>
+        <item name="colorControlNormal">@color/colorControlNormal</item>
         <item name="popupTheme">@style/AppTheme.PopupOverlay</item>
-        <item name="titleTextColor">#ffffffff</item>
+        <item name="titleTextColor">@color/textColorPrimary</item>
         <item name="layout_scrollFlags">scroll|enterAlways</item>
         <item name="android:gravity">left|center_vertical</item>
         <item name="contentInsetLeft">0dp</item>
         <item name="contentInsetRight">0dp</item>
         <item name="titleMarginStart">0dp</item>
-        <item name="android:textColor">#ffffffff</item>
+        <item name="android:textColor">@color/textColorPrimary</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>

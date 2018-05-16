@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="windowBackground">#ff101040</color>
-    <color name="colorPrimary">#ff404070</color>
+    <color name="windowBackground">#ff303040</color>
+    <color name="colorPrimary">#ff505070</color>
     <color name="colorPrimaryDark">#ff303060</color>
     <color name="colorAccent">#ffe0e0f0</color>
     <color name="textColorPrimary">#ffffffff</color>
     <color name="textColorPrimaryDisabled">#7fffffff</color>
     <color name="textColorSecondary">#beffffff</color>
     <color name="textColorSecondaryDisables">#9effffff</color>
+    <color name="colorControlNormal">#8a000000</color>
 
-    <color name="colorTab">#7f404070</color>
+    <color name="colorTab">#7f505070</color>
     <color name="colorTabPressed">#Af404070</color>
+    <color name="colorFileIcon">#ff5070a0</color>
 
 </resources>

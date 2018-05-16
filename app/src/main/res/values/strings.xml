@@ -39,4 +39,5 @@
     <string name="file_size_format">size: %s</string>
     <string name="explanation_permission">File manager is useless if not granted access to storage</string>
     <string name="moving_files">Moving files</string>
+    <string name="icon">icon</string>
 </resources>

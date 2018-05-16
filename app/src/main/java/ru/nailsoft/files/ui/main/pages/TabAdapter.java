@@ -1,5 +1,6 @@
 package ru.nailsoft.files.ui.main.pages;
 
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
@@ -12,26 +13,26 @@ class TabAdapter extends RecyclerView.Adapter {
     private final TabData data;
     private RecyclerView list;
 
-    public TabAdapter(TabData data, FileViewHolder.MasterInterface master) {
+    TabAdapter(TabData data, FileViewHolder.MasterInterface master) {
         this.master = master;
         this.data = data;
     }
 
     @Override
-    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         list = recyclerView;
         super.onAttachedToRecyclerView(recyclerView);
     }
 
     @Override
-    public void onDetachedFromRecyclerView(RecyclerView recyclerView) {
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         list = null;
     }
 
     @Override
     public int getItemViewType(int position) {
-        FileItem fi = data.files.get(position);
+        FileItem fi = data.displayFiles.get(position);
         if (fi.directory) {
             if (fi.hidden)
                 return R.layout.item_directory_hidden;
@@ -45,8 +46,9 @@ class TabAdapter extends RecyclerView.Adapter {
         }
     }
 
+    @NonNull
     @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case R.layout.item_file:
             case R.layout.item_file_hidden:
@@ -58,13 +60,13 @@ class TabAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        ((FileViewHolder) holder).bind(data.files.get(position));
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        ((FileViewHolder) holder).bind(data.displayFiles.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return data.files.size();
+        return data.displayFiles.size();
     }
 
 }

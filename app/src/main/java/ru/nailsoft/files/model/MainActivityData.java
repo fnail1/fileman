@@ -62,22 +62,19 @@ public class MainActivityData {
     public void onTabPathChanged(TabData tab) {
         updateTabNamesSync();
         tabsChanged.fire(tab);
-        tab.files = cache.get(tab.getPath());
-        boolean fromCache = tab.files != null;
-        if (fromCache)
+        List<FileItem> cached = cache.get(tab.getPath());
+        boolean fromCache = cached != null;
+        if (fromCache) {
+            tab.setFiles(cached);
             onTabDataChanged(tab);
-        else
-            tab.files = Collections.emptyList();
+        }
 
         ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(() -> {
             List<FileItem> files = readFiles(tab);
 
-            if (tab.files.isEmpty() && !files.isEmpty()) {
+            if ((cached == null || cached.isEmpty()) && !files.isEmpty()) {
                 cache.put(tab.getPath(), files);
-                ThreadPool.UI.post(() -> {
-                    tab.files = files;
-                    onTabDataChanged(tab);
-                });
+                ThreadPool.UI.post(() -> tab.setFiles(files));
             }
 
 
@@ -94,10 +91,7 @@ public class MainActivityData {
                 }
             }
 
-            ThreadPool.UI.post(() -> {
-                tab.files = files;
-                onTabDataChanged(tab);
-            });
+            ThreadPool.UI.post(() -> tab.setFiles(files));
         });
     }
 

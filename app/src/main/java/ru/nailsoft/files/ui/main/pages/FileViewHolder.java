@@ -36,7 +36,7 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     private final MasterInterface master;
     private FileItem file;
 
-    public FileViewHolder(RecyclerView list, ViewGroup parent, @LayoutRes int viewType, MasterInterface master) {
+    FileViewHolder(RecyclerView list, ViewGroup parent, @LayoutRes int viewType, MasterInterface master) {
         super(LayoutInflater.from(list.getContext()).inflate(viewType, parent, false));
         this.master = master;
         ButterKnife.bind(this, itemView);
@@ -55,7 +55,7 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
         if (file.detailsResolved) {
             subtitle.setVisibility(View.VISIBLE);
-            subtitle.setText(subtitle.getContext().getString(R.string.file_size_format, file.length));
+            subtitle.setText(file.getSubtitle(subtitle.getResources()));
         } else {
             subtitle.setVisibility(View.GONE);
         }

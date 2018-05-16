@@ -1,6 +1,7 @@
 package ru.nailsoft.files.ui.main;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -11,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -39,6 +41,8 @@ import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.service.Clipboard;
 import ru.nailsoft.files.service.ClipboardItem;
 import ru.nailsoft.files.service.CopyTask;
+import ru.nailsoft.files.toolkit.ThreadPool;
+import ru.nailsoft.files.toolkit.concurrent.ExclusiveExecutor2;
 import ru.nailsoft.files.toolkit.io.FileOpException;
 import ru.nailsoft.files.toolkit.io.FileUtils;
 import ru.nailsoft.files.ui.BaseActivity;
@@ -59,7 +63,7 @@ public class MainActivity extends BaseActivity
         FilesFragment.MasterInterface,
         TabsTitlesAdapter.MasterInterface,
         MainActivityData.SelectionChangeEventHandler,
-        Clipboard.ClipboardEventHandler {
+        Clipboard.ClipboardEventHandler, SearchView.OnQueryTextListener {
 
     @BindView(R.id.path) LinearLayout path;
     @BindView(R.id.toolbar) Toolbar toolbar;
@@ -85,6 +89,8 @@ public class MainActivity extends BaseActivity
     private boolean fabMenuOpen = false;
     private ActionMode actionMode;
     private SidebarViewHolder sidebarViewHolder;
+    private ExclusiveExecutor2 filterExecutor = new ExclusiveExecutor2(0, ThreadPool.SCHEDULER, this::onFilterChanged);
+    private String filter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +186,7 @@ public class MainActivity extends BaseActivity
         menuRename = menu.findItem(R.id.rename);
         menuShare = menu.findItem(R.id.share);
         menuSearch = menu.findItem(R.id.search);
+        ((SearchView) menuSearch.getActionView()).setOnQueryTextListener(this);
         menuClose = menu.findItem(R.id.close);
         actionMode = ActionMode.MANY;
         toggleActionMode(ActionMode.NONE);
@@ -305,7 +312,7 @@ public class MainActivity extends BaseActivity
                 .setPositiveButton(R.string.delete, (dialog, which) -> {
                     for (FileItem fileItem : tab.selection) {
                         FileUtils.deleteRecursive(fileItem.file);
-                        tab.files.remove(fileItem);
+                        tab.onDelete(fileItem);
                     }
                     tab.selection.clear();
                     tab.onDataChanged();
@@ -315,6 +322,7 @@ public class MainActivity extends BaseActivity
     }
 
     void onRenameClick() {
+        @SuppressLint("InflateParams")
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_rename, null);
         TabData tab = data().tabs.get(pages.getCurrentItem());
         FileItem fileItem = tab.selection.iterator().next();
@@ -451,7 +459,7 @@ public class MainActivity extends BaseActivity
             }
         }
 
-        fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
+//        fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
 //        fabMenuItems.add(new FabMenuAdapter.CloseItem(this));
         fabMenuAdapter.setItems(fabMenuItems);
 
@@ -542,6 +550,21 @@ public class MainActivity extends BaseActivity
         closeFabMenu();
     }
 
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        filter = newText;
+        filterExecutor.execute(false);
+        return false;
+    }
+
+    private void onFilterChanged() {
+        currentTab().setFilter(filter);
+    }
 
     public enum ActionMode {
         NONE, SINGLE, MANY

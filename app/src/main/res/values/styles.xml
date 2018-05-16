@@ -81,28 +81,28 @@
         <item name="android:textColor">@color/textColorPrimary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="HiddenDirectoryNameTextAppearance">
         <item name="android:textColor">@color/textColorPrimaryDisabled</item>
         <item name="android:textSize">14sp</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="FileInfoTextAppearance">
         <item name="android:textColor">@color/textColorSecondary</item>
         <item name="android:textSize">10sp</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="FileInfoDisabledTextAppearance">
         <item name="android:textColor">@color/textColorSecondaryDisables</item>
         <item name="android:textSize">6sp</item>
         <item name="android:fontFamily">sans-serif</item>
-        <item name="android:textStyle">bold</item>
+        <item name="android:textStyle">normal</item>
     </style>
 
     <style name="PathElementTextAppearance">

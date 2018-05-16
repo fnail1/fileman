@@ -16,6 +16,7 @@ import java.io.IOException;
 import ru.nailsoft.files.R;
 import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.model.TabData;
+import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.toolkit.collections.Query;
 
 import static ru.nailsoft.files.App.data;
@@ -40,9 +41,14 @@ public class MyDocumentProvider extends DocumentsProvider {
             DocumentsContract.Document.COLUMN_FLAGS,
             DocumentsContract.Document.COLUMN_SIZE,};
 
+    private final static TabDataFriend tabDataFriend = new TabDataFriend();
+
     @Override
     public Cursor queryRoots(String[] projection) throws FileNotFoundException {
         trace();
+
+        if (data().tabs.isEmpty())
+            throw new FileNotFoundException();
 
         if (projection == null)
             projection = DEFAULT_ROOT_PROJECTION;
@@ -94,7 +100,7 @@ public class MyDocumentProvider extends DocumentsProvider {
     @Nullable
     private FileItem getFileForDocId(String documentId) {
         File file = new File(documentId);
-        return Query.query(data().tabs).extract(t -> t.files).first(f -> f.file.equals(file));
+        return Query.query(data().tabs).extract(t -> t.getFiles(tabDataFriend)).first(f -> f.file.equals(file));
     }
 
     @Override
@@ -107,19 +113,22 @@ public class MyDocumentProvider extends DocumentsProvider {
         MatrixCursor cursor = new MatrixCursor(projection);
         for (TabData tab : data().tabs) {
             if (tab.getPath().equals(new File(parentDocumentId))) {
-                for (FileItem file : tab.files) {
+                for (FileItem file : tab.getFiles(tabDataFriend)) {
                     MatrixCursor.RowBuilder row = cursor.newRow();
                     row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, file.file.getAbsolutePath());
                     row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, file.mimeType);
                     row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, file.name);
                     row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, 0);
                     row.add(DocumentsContract.Document.COLUMN_FLAGS, 0);
-                    row.add(DocumentsContract.Document.COLUMN_SIZE, file.length);
+                    row.add(DocumentsContract.Document.COLUMN_SIZE, file.size);
                 }
 
                 break;
             }
         }
+
+        if (cursor.getCount() == 0)
+            throw new FileNotFoundException();
 
 
         return cursor;
@@ -130,14 +139,16 @@ public class MyDocumentProvider extends DocumentsProvider {
         trace(documentId);
 
         FileItem file = getFileForDocId(documentId);
+        if (file == null)
+            throw new FileNotFoundException();
+
         int accessMode = ParcelFileDescriptor.parseMode(mode);
 
         final boolean isWrite = (mode.indexOf('w') != -1);
         if (isWrite) {
             // Attach a close listener if the document is opened in write mode.
             try {
-                Handler handler = new Handler(getContext().getMainLooper());
-                return ParcelFileDescriptor.open(file.file, accessMode, handler,
+                return ParcelFileDescriptor.open(file.file, accessMode, ThreadPool.UI,
                         e -> {
                             trace();
                             if (e != null)
@@ -156,5 +167,13 @@ public class MyDocumentProvider extends DocumentsProvider {
     public boolean onCreate() {
         trace();
         return false;
+    }
+
+    /**
+     * simulate C++ <b>friend class<b/>
+     */
+    public static class TabDataFriend {
+        private TabDataFriend() {
+        }
     }
 }

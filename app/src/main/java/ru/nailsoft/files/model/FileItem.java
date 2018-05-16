@@ -2,36 +2,23 @@ package ru.nailsoft.files.model;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.provider.DocumentsContract;
-import android.support.v4.content.ContextCompat;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 import ru.nailsoft.files.R;
 import ru.nailsoft.files.toolkit.io.FileUtils;
-import ru.nailsoft.files.utils.GraphicUtils;
-import ru.nailsoft.files.utils.photomanager.adapters.AutoScaledDrawable;
-import ru.nailsoft.files.utils.photomanager.adapters.RoundedRectDrawable;
 
 import static ru.nailsoft.files.App.app;
-import static ru.nailsoft.files.App.icons;
-import static ru.nailsoft.files.App.screenMetrics;
 
-public class FileItem {
+public final class FileItem implements Cloneable {
 
     public static final FileItem EMPTY = new FileItem(new File("/dev/null"));
     public final File file;
@@ -41,8 +28,9 @@ public class FileItem {
     public final String ext;
     public final String order;
     public long size;
-    public String length = "";
     public String mimeType;
+    private String length = "";
+    CharSequence subtitle;
     public boolean detailsResolved;
 
     public FileItem(File file) {
@@ -66,8 +54,7 @@ public class FileItem {
 
     public void resolveDetails() {
         size = FileUtils.getLength(file);
-        this.length = FileUtils.formatLength(size);
-
+        length = FileUtils.formatLength(size);
         if (!directory) {
             Uri fileUri = Uri.fromFile(file);
             mimeType = resolveMimeType(file, fileUri);
@@ -116,6 +103,13 @@ public class FileItem {
         context.startActivity(Intent.createChooser(intent, context.getString(R.string.open_file, name)));
     }
 
+    public CharSequence getSubtitle(Resources resx) {
+        if (subtitle != null)
+            return subtitle;
+        return resx.getString(R.string.file_size_format, length);
+    }
+
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -131,4 +125,12 @@ public class FileItem {
         return file.hashCode();
     }
 
+    @Override
+    public FileItem clone() {
+        try {
+            return (FileItem) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

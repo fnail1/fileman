@@ -113,10 +113,7 @@ public class MainActivity extends BaseActivity
 
             @Override
             public void onPageSelected(int position) {
-                rebuildPath();
-                tabs.getAdapter().notifyDataSetChanged();
-                tabs.scrollToPosition(position);
-                onSelectionChanged(data().tabs.get(position));
+                onCurrentTabChanged(position);
             }
 
             @Override
@@ -131,6 +128,16 @@ public class MainActivity extends BaseActivity
 
         requestPermissions(ReqCodes.STORAGE_PERMISSION.code(), R.string.explanation_permission,
                 Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }
+
+    private void onCurrentTabChanged(int position) {
+        TabData tab = data().tabs.get(position);
+
+        rebuildPath(tab);
+        tabs.getAdapter().notifyDataSetChanged();
+        tabs.scrollToPosition(position);
+        onSelectionChanged(tab);
+        sidebarViewHolder.onCurrentTabChanged(tab);
     }
 
     @Override
@@ -150,6 +157,7 @@ public class MainActivity extends BaseActivity
         data().selectionChanged.add(this);
         clipboard().changedEvent.add(this);
         rebuildPath();
+        sidebarViewHolder.onCurrentTabChanged(currentTab());
     }
 
     @Override
@@ -480,7 +488,7 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void onTabDataChanged(MainActivityData sender, TabData args) {
-        if (args != data().tabs.get(pages.getCurrentItem()))
+        if (args != currentTab())
             return;
         runOnUiThread(() -> {
             rebuildPath(args);
@@ -489,7 +497,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void rebuildPath() {
-        rebuildPath(data().tabs.get(pages.getCurrentItem()));
+        rebuildPath(currentTab());
     }
 
     private void rebuildPath(TabData args) {

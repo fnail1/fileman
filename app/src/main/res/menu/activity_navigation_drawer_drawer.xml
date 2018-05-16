@@ -7,22 +7,24 @@
 
         <item
             android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="@string/order"
             android:enabled="true"
-            android:theme="@style/AppTheme">
+            android:icon="@drawable/ic_menu_camera"
+            android:theme="@style/AppTheme"
+            android:title="@string/orderBy">
             <menu>
-                <item android:id="@+id/order_name"
-                    android:title="@string/name"/>
+                <item
+                    android:id="@+id/order_name"
+                    android:icon="@drawable/ic_sort_desc"
+                    android:title="@string/name"
+                    />
 
-                <item android:id="@+id/order_create"
-                      android:title="@string/date_created"/>
+                <item
+                    android:id="@+id/order_modified"
+                    android:title="@string/date_modified"/>
 
-                <item android:id="@+id/order_modified"
-                      android:title="@string/date_modified"/>
-
-                <item android:id="@+id/order_size"
-                      android:title="@string/size"/>
+                <item
+                    android:id="@+id/order_size"
+                    android:title="@string/size"/>
             </menu>
         </item>
     </group>

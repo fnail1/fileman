@@ -19,9 +19,9 @@
     <string name="name">Name</string>
     <string name="size">Size</string>
 
-    <string name="new_directory">New directory</string>
-    <string name="date_created">Date created</string>
+    <string name="orderBy">Order by</string>
     <string name="date_modified">Date modified</string>
+    <string name="new_directory">New directory</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>

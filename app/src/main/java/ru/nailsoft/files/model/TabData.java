@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -28,6 +29,7 @@ public class TabData {
     public String title;
     public List<FileItem> displayFiles = Collections.emptyList();
     private String filter = "";
+    private Order order = Order.NAME_ASC;
 
     public TabData(MainActivityData data) {
         this.data = data;
@@ -96,6 +98,8 @@ public class TabData {
                 }
             }
         }
+
+        Collections.sort(filtered, order.comarator());
 
         ThreadPool.UI.post(() -> {
             displayFiles = filtered;
@@ -177,6 +181,17 @@ public class TabData {
         onDataChanged();
     }
 
+    public void setOrder(Order order) {
+        if (this.order == order)
+            return;
+        this.order = order;
+        onDataChanged();
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
     public static class HistoryItem {
         public final File path;
         Parcelable linearLayoutManagerSavedState;
@@ -184,5 +199,76 @@ public class TabData {
         HistoryItem(File path) {
             this.path = path;
         }
+    }
+
+    public enum Order {
+        NAME_ASC {
+            @Override
+            public Comparator<FileItem> comarator() {
+                return (o1, o2) -> {
+                    if (o1.directory != o2.directory)
+                        return o1.directory ? -1 : 1;
+
+                    return o1.order.compareTo(o2.order);
+                };
+            }
+        },
+        NAME_DESC {
+            @Override
+            public Comparator<FileItem> comarator() {
+                return (o1, o2) -> {
+                    if (o1.directory != o2.directory)
+                        return o1.directory ? -1 : 1;
+
+                    return o2.order.compareTo(o1.order);
+                };
+            }
+        },
+        SIZE_ASC {
+            @Override
+            public Comparator<FileItem> comarator() {
+                return (o1, o2) -> {
+                    if (o1.directory != o2.directory)
+                        return o1.directory ? -1 : 1;
+
+                    return Long.compare(o2.size, o1.size);
+                };
+            }
+        },
+        SIZE_DESC {
+            @Override
+            public Comparator<FileItem> comarator() {
+                return (o1, o2) -> {
+                    if (o1.directory != o2.directory)
+                        return o1.directory ? -1 : 1;
+
+                    return Long.compare(o1.size, o2.size);
+                };
+            }
+        },
+        MOFIFIED_ASC {
+            @Override
+            public Comparator<FileItem> comarator() {
+                return (o1, o2) -> {
+                    if (o1.directory != o2.directory)
+                        return o1.directory ? -1 : 1;
+
+                    return Long.compare(o1.file.lastModified(), o2.file.lastModified());
+                };
+            }
+        },
+        MOFIFIED_DESC {
+            @Override
+            public Comparator<FileItem> comarator() {
+                return (o1, o2) -> {
+                    if (o1.directory != o2.directory)
+                        return o1.directory ? -1 : 1;
+
+                    return Long.compare(o2.file.lastModified(), o1.file.lastModified());
+                };
+            }
+        };
+
+        public abstract Comparator<FileItem> comarator();
     }
 }

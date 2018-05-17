@@ -41,14 +41,21 @@
         tools:text="size: 32 Gb"
         />
 
-    <ImageView
+    <FrameLayout
         android:id="@+id/action"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
         android:layout_margin="4dp"
-        android:background="@drawable/bg_ripple_primary"
-        android:padding="8dp"
-        app:srcCompat="@drawable/ic_expand_more"/>
+        android:foreground="@drawable/bg_ripple_primary"
+        >
+
+        <ImageView
+            android:id="@+id/action_icon"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_expand_more"/>
+    </FrameLayout>
 </RelativeLayout>

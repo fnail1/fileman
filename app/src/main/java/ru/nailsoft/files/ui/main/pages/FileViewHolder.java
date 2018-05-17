@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -30,8 +31,11 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     @BindView(R.id.subtitle)
     TextView subtitle;
 
-    @BindView((R.id.action))
-    ImageView action;
+    @BindView(R.id.action)
+    FrameLayout action;
+
+    @BindView(R.id.action_icon)
+    ImageView actionIcon;
 
     private final MasterInterface master;
     private FileItem file;
@@ -63,13 +67,13 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         ClipboardItem clipboardItem = clipboard().get(file);
         if (clipboardItem != null) {
             if (clipboardItem.removeSource)
-                action.setImageResource(R.drawable.ic_cut);
+                actionIcon.setImageResource(R.drawable.ic_cut);
             else
-                action.setImageResource(R.drawable.ic_copy);
+                actionIcon.setImageResource(R.drawable.ic_copy);
         } else if (master.isSelected(file))
-            action.setImageResource(R.drawable.ic_check);
+            actionIcon.setImageResource(R.drawable.ic_selected);
         else
-            action.setImageResource(R.drawable.ic_expand_more);
+            actionIcon.setImageResource(R.drawable.ic_selectable);
     }
 
     @Override
@@ -89,7 +93,7 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     private void toggleSelection() {
         boolean selected = master.toggleSelection(file);
-        action.setImageResource(selected ? R.drawable.ic_check : R.drawable.ic_expand_more);
+        actionIcon.setImageResource(selected ? R.drawable.ic_check : R.drawable.ic_expand_more);
     }
 
     public interface MasterInterface {

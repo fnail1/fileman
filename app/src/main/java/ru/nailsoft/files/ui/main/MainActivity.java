@@ -452,6 +452,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void clearClipboard() {
         clipboard().clear();
+        closeFabMenu();
     }
 
     private void buildFabMenu(boolean scrollToEnd) {

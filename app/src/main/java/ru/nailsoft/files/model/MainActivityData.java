@@ -66,7 +66,6 @@ public class MainActivityData {
         boolean fromCache = cached != null;
         if (fromCache) {
             tab.setFiles(cached);
-            onTabDataChanged(tab);
         }
 
         ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(() -> {
@@ -76,7 +75,6 @@ public class MainActivityData {
                 cache.put(tab.getPath(), files);
                 ThreadPool.UI.post(() -> tab.setFiles(files));
             }
-
 
             long t0 = SystemClock.elapsedRealtime();
             for (int i = 0; i < files.size(); i++) {

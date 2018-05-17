@@ -1,6 +1,7 @@
 package ru.nailsoft.files.ui.main.pages;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -94,8 +95,7 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
         activity.runOnUiThread(() -> {
             list.getAdapter().notifyDataSetChanged();
             if (!data.getPath().equals(displayedPath)) {
-                LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
-                layoutManager.onRestoreInstanceState(data.scrollState());
+                restoreScroll();
                 displayedPath = data.getPath();
             }
         });
@@ -133,8 +133,7 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
             return;
 
         if (args == data) {
-            LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
-            layoutManager.onRestoreInstanceState(data.scrollState());
+            restoreScroll();
         }
 
         if (index >= data().tabs.size())
@@ -159,7 +158,18 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
         list.getAdapter().notifyDataSetChanged();
     }
 
+    private void restoreScroll() {
+        LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
+        Parcelable state = data.scrollState();
+        if (state != null) {
+            layoutManager.onRestoreInstanceState(state);
+        } else {
+            layoutManager.scrollToPositionWithOffset(0, 0);
+        }
+    }
+
     public interface MasterInterface {
+
         boolean isActionMode();
     }
 }

@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -54,6 +55,7 @@ import ru.nailsoft.files.utils.Utils;
 import static ru.nailsoft.files.App.clipboard;
 import static ru.nailsoft.files.App.copy;
 import static ru.nailsoft.files.App.data;
+import static ru.nailsoft.files.diagnostics.Logger.trace;
 
 public class MainActivity extends BaseActivity
         implements
@@ -91,6 +93,7 @@ public class MainActivity extends BaseActivity
     private SidebarViewHolder sidebarViewHolder;
     private ExclusiveExecutor2 filterExecutor = new ExclusiveExecutor2(0, ThreadPool.SCHEDULER, this::onFilterChanged);
     private String filter;
+    private SearchView searchView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +183,8 @@ public class MainActivity extends BaseActivity
             tab.onDataChanged();
         } else if (fabMenuOpen) {
             closeFabMenu();
+        } else if (!searchView.isIconified()) {
+            searchView.setIconified(true);
         } else if (!data().tabs.get(pages.getCurrentItem()).navigateBack()) {
             super.onBackPressed();
         }
@@ -194,7 +199,8 @@ public class MainActivity extends BaseActivity
         menuRename = menu.findItem(R.id.rename);
         menuShare = menu.findItem(R.id.share);
         menuSearch = menu.findItem(R.id.search);
-        ((SearchView) menuSearch.getActionView()).setOnQueryTextListener(this);
+        searchView = ((SearchView) menuSearch.getActionView());
+        searchView.setOnQueryTextListener(this);
         menuClose = menu.findItem(R.id.close);
         actionMode = ActionMode.MANY;
         toggleActionMode(ActionMode.NONE);

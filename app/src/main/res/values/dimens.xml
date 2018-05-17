@@ -12,4 +12,8 @@
     <dimen name="icon_gen_ext_size">6pt</dimen>
     <dimen name="menu_icon_size">32dp</dimen>
     <dimen name="fab_menu_item_height">40dp</dimen>
+    <dimen name="doc_icon_custom_area_left">0dp</dimen>
+    <dimen name="doc_icon_custom_area_top">28dp</dimen>
+    <dimen name="doc_icon_custom_area_right">32dp</dimen>
+    <dimen name="doc_icon_custom_area_bottom">44dp</dimen>
 </resources>

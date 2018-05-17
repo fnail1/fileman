@@ -1,8 +1,11 @@
 package ru.nailsoft.files.utils.photomanager;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
@@ -32,14 +35,17 @@ public class IconsManager {
     private final Bitmap file;
     private final TextPaint extPaint;
     private final Drawable folder;
+    private final Rect customArea;
 
     public IconsManager(Context context, AppStateObserver stateObserver, ScreenMetrics screenMetrics) {
         cache = new PhotoMemoryCache(stateObserver);
 
-        Drawable d = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_document, context.getTheme());
+        Resources resources = context.getResources();
+
+        Drawable d = ResourcesCompat.getDrawable(resources, R.drawable.ic_document, context.getTheme());
         document = new AutoScaledDrawable.In(d, screenMetrics.icon.width, screenMetrics.icon.height);
 
-        d = ResourcesCompat.getDrawable(context.getResources(), R.drawable.ic_file, context.getTheme());
+        d = ResourcesCompat.getDrawable(resources, R.drawable.ic_file, context.getTheme());
         file = Bitmap.createBitmap(screenMetrics.icon.width, screenMetrics.icon.height, Bitmap.Config.ARGB_8888);
         d = new AutoScaledDrawable.In(d, screenMetrics.icon.width, screenMetrics.icon.height);
         Canvas canvas = new Canvas(file);
@@ -47,9 +53,15 @@ public class IconsManager {
         d.draw(canvas);
         extPaint = new TextPaint();
         extPaint.setColor(Utils.getColor(context, R.color.colorAccent));
-        extPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.icon_gen_ext_size));
+        extPaint.setTextSize(resources.getDimensionPixelSize(R.dimen.icon_gen_ext_size));
 
         folder = GraphicUtils.getDrawable(context, R.drawable.ic_folder);
+
+        customArea = new Rect(
+                resources.getDimensionPixelOffset(R.dimen.doc_icon_custom_area_left),
+                resources.getDimensionPixelOffset(R.dimen.doc_icon_custom_area_top),
+                resources.getDimensionPixelOffset(R.dimen.doc_icon_custom_area_right),
+                resources.getDimensionPixelOffset(R.dimen.doc_icon_custom_area_bottom));
     }
 
     public PhotoRequestBuilder<ImageView> attach(ImageView imageView, FileItem file) {
@@ -94,11 +106,12 @@ public class IconsManager {
 
         document.draw(canvas);
 
+        Paint.FontMetricsInt fontMetricsInt = extPaint.getFontMetricsInt();
         float w = extPaint.measureText(ext);
-        canvas.drawText(ext,
-                (bitmap.getWidth() - w) / 2,
-                bitmap.getHeight() - extPaint.getTextSize(),
-                extPaint);
+        float h = extPaint.getTextSize();
+        float x = customArea.left + (customArea.width() - w) / 2;
+        float y = (customArea.bottom + customArea.top + h) / 2 - fontMetricsInt.bottom;
+        canvas.drawText(ext, x, y, extPaint);
 
         return bitmap;
     }

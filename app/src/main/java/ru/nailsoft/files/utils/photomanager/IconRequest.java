@@ -90,6 +90,7 @@ public final class IconRequest<TView> implements Runnable {
         log("start");
 
         if (file.directory) {
+            icon = iconsManager.getFolderIcon();
             apply();
             return;
         }
@@ -193,178 +194,178 @@ public final class IconRequest<TView> implements Runnable {
                 size.width, size.height);
     }
 
-public abstract static class AbstractPlaceholder<TView> {
+    public abstract static class AbstractPlaceholder<TView> {
 
-    static AbstractPlaceholder wrap(@DrawableRes int resId) {
-        return new ResourcePlaceholder(resId);
-    }
-
-    static AbstractPlaceholder wrap(Drawable drawable) {
-        return new DrawablePlaceholder(drawable);
-    }
-
-    protected AbstractPlaceholder() {
-    }
-
-    protected abstract void apply(IconRequest<TView> request);
-
-    protected void apply(IconRequest<TView> request, TView imageView, Drawable drawable) {
-        Drawable d = request.viewHolder.staticEffect(request, imageView, drawable);
-
-        if (Logger.LOG_GLIDE) {
-            d = new DebugDrawable(d);
+        static AbstractPlaceholder wrap(@DrawableRes int resId) {
+            return new ResourcePlaceholder(resId);
         }
 
-        request.viewHolder.apply(request, imageView, d, false);
+        static AbstractPlaceholder wrap(Drawable drawable) {
+            return new DrawablePlaceholder(drawable);
+        }
+
+        protected AbstractPlaceholder() {
+        }
+
+        protected abstract void apply(IconRequest<TView> request);
+
+        protected void apply(IconRequest<TView> request, TView imageView, Drawable drawable) {
+            Drawable d = request.viewHolder.staticEffect(request, imageView, drawable);
+
+            if (Logger.LOG_GLIDE) {
+                d = new DebugDrawable(d);
+            }
+
+            request.viewHolder.apply(request, imageView, d, false);
+        }
+
+
     }
 
+    private static class ResourcePlaceholder<TView extends View> extends AbstractPlaceholder<TView> {
+        private final int resId;
 
-}
+        ResourcePlaceholder(@DrawableRes int resId) {
+            this.resId = resId;
+        }
 
-private static class ResourcePlaceholder<TView extends View> extends AbstractPlaceholder<TView> {
-    private final int resId;
+        @Override
+        protected void apply(IconRequest<TView> request) {
+            TView imageView = request.viewHolder.viewRef.get();
+            if (imageView == null)
+                return;
 
-    ResourcePlaceholder(@DrawableRes int resId) {
-        this.resId = resId;
-    }
-
-    @Override
-    protected void apply(IconRequest<TView> request) {
-        TView imageView = request.viewHolder.viewRef.get();
-        if (imageView == null)
-            return;
-
-        Context context = imageView.getContext();
-        Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), resId, context.getTheme());
-        if (drawable != null) {
+            Context context = imageView.getContext();
+            Drawable drawable = ResourcesCompat.getDrawable(context.getResources(), resId, context.getTheme());
+            if (drawable != null) {
 //                    drawable = new AutoScaledDrawable(drawable, request.targetWidth, request.targetHeight);
-            apply(request, imageView, drawable);
-        }
-    }
-
-}
-
-private static class DrawablePlaceholder<TView extends View> extends AbstractPlaceholder<TView> {
-    private final Drawable drawable;
-
-    DrawablePlaceholder(Drawable drawable) {
-        this.drawable = drawable;
-    }
-
-    @Override
-    protected void apply(IconRequest<TView> request) {
-        TView imageView = request.viewHolder.viewRef.get();
-        if (imageView == null)
-            return;
-        apply(request, imageView, drawable);
-    }
-
-}
-
-public static abstract class Target<TView> {
-
-    public final WeakReference<TView> viewRef;
-
-    protected Target(TView target) {
-        this.viewRef = new WeakReference<>(target);
-    }
-
-    public Drawable staticEffect(IconRequest<TView> request, TView view, Drawable drawable) {
-        return drawable;
-    }
-
-    public abstract void apply(IconRequest<TView> request, TView view, @Nullable Drawable d, boolean animate);
-
-    public abstract boolean forcePlaceholder();
-
-    public abstract Object getTag(TView imageView);
-
-    public abstract Context getContext(TView imageView);
-
-    public abstract void setTag(TView imageView, Object tag);
-
-}
-
-public static abstract class ViewTarget<TView extends View> extends Target<TView> {
-
-    ViewTarget(TView target) {
-        super(target);
-    }
-
-    @Override
-    public Object getTag(TView imageView) {
-        return imageView.getTag();
-    }
-
-    @Override
-    public Context getContext(TView imageView) {
-        return imageView.getContext();
-    }
-
-    @Override
-    public void setTag(TView imageView, Object tag) {
-        imageView.setTag(tag);
-    }
-
-}
-
-public static class ImageViewTarget extends ViewTarget<ImageView> {
-
-    public ImageViewTarget(ImageView target) {
-        super(target);
-    }
-
-    @Override
-    public Drawable staticEffect(IconRequest<ImageView> request, ImageView view, @Nullable Drawable drawable) {
-        if (drawable != null) {
-            switch (view.getScaleType()) {
-                case CENTER_CROP:
-//                    case FIT_CENTER:
-                    return new AutoScaledDrawable.In(drawable, request.size.width, request.size.height);
+                apply(request, imageView, drawable);
             }
         }
-        return drawable;
+
     }
 
-    @Override
-    public void apply(IconRequest<ImageView> request, ImageView view, @Nullable Drawable d, boolean animate) {
-        if (animate && d != null) {
-            request.log("apply animated");
-            GraphicUtils.setImageBitmapAnimated(view, d, IconsManager.CROSS_FADE_REVEAL_DURATION);
-        } else {
-            request.log("apply static");
-            view.setImageDrawable(d);
+    private static class DrawablePlaceholder<TView extends View> extends AbstractPlaceholder<TView> {
+        private final Drawable drawable;
+
+        DrawablePlaceholder(Drawable drawable) {
+            this.drawable = drawable;
         }
+
+        @Override
+        protected void apply(IconRequest<TView> request) {
+            TView imageView = request.viewHolder.viewRef.get();
+            if (imageView == null)
+                return;
+            apply(request, imageView, drawable);
+        }
+
     }
 
-    @Override
-    public boolean forcePlaceholder() {
-        return false;
+    public static abstract class Target<TView> {
+
+        public final WeakReference<TView> viewRef;
+
+        protected Target(TView target) {
+            this.viewRef = new WeakReference<>(target);
+        }
+
+        public Drawable staticEffect(IconRequest<TView> request, TView view, Drawable drawable) {
+            return drawable;
+        }
+
+        public abstract void apply(IconRequest<TView> request, TView view, @Nullable Drawable d, boolean animate);
+
+        public abstract boolean forcePlaceholder();
+
+        public abstract Object getTag(TView imageView);
+
+        public abstract Context getContext(TView imageView);
+
+        public abstract void setTag(TView imageView, Object tag);
+
     }
 
-}
+    public static abstract class ViewTarget<TView extends View> extends Target<TView> {
 
-public static class TextViewStartTarget extends ViewTarget<TextView> {
+        ViewTarget(TView target) {
+            super(target);
+        }
 
-    public TextViewStartTarget(TextView target) {
-        super(target);
+        @Override
+        public Object getTag(TView imageView) {
+            return imageView.getTag();
+        }
+
+        @Override
+        public Context getContext(TView imageView) {
+            return imageView.getContext();
+        }
+
+        @Override
+        public void setTag(TView imageView, Object tag) {
+            imageView.setTag(tag);
+        }
+
     }
 
-    @Override
-    public Drawable staticEffect(IconRequest<TextView> request, TextView view, Drawable drawable) {
-        drawable.setBounds(0, 0, request.size.width, request.size.height);
-        return drawable;
+    public static class ImageViewTarget extends ViewTarget<ImageView> {
+
+        public ImageViewTarget(ImageView target) {
+            super(target);
+        }
+
+        @Override
+        public Drawable staticEffect(IconRequest<ImageView> request, ImageView view, @Nullable Drawable drawable) {
+            if (drawable != null) {
+                switch (view.getScaleType()) {
+                    case CENTER_CROP:
+//                    case FIT_CENTER:
+                        return new AutoScaledDrawable.In(drawable, request.size.width, request.size.height);
+                }
+            }
+            return drawable;
+        }
+
+        @Override
+        public void apply(IconRequest<ImageView> request, ImageView view, @Nullable Drawable d, boolean animate) {
+            if (animate && d != null) {
+                request.log("apply animated");
+                GraphicUtils.setImageBitmapAnimated(view, d, IconsManager.CROSS_FADE_REVEAL_DURATION);
+            } else {
+                request.log("apply static");
+                view.setImageDrawable(d);
+            }
+        }
+
+        @Override
+        public boolean forcePlaceholder() {
+            return false;
+        }
+
     }
 
-    @Override
-    public void apply(IconRequest<TextView> request, TextView view, @Nullable Drawable d, boolean animate) {
-        view.setCompoundDrawablesRelative(d, null, null, null);
-    }
+    public static class TextViewStartTarget extends ViewTarget<TextView> {
 
-    @Override
-    public boolean forcePlaceholder() {
-        return true;
-    }
+        public TextViewStartTarget(TextView target) {
+            super(target);
+        }
 
-}
+        @Override
+        public Drawable staticEffect(IconRequest<TextView> request, TextView view, Drawable drawable) {
+            drawable.setBounds(0, 0, request.size.width, request.size.height);
+            return drawable;
+        }
+
+        @Override
+        public void apply(IconRequest<TextView> request, TextView view, @Nullable Drawable d, boolean animate) {
+            view.setCompoundDrawablesRelative(d, null, null, null);
+        }
+
+        @Override
+        public boolean forcePlaceholder() {
+            return true;
+        }
+
+    }
 }

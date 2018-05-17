@@ -13,5 +13,6 @@
     <color name="colorTab">#7f505070</color>
     <color name="colorTabPressed">#Af404070</color>
     <color name="colorFileIcon">#ff5070a0</color>
+    <color name="colorSelected">#ffa0c0f0</color>
 
 </resources>

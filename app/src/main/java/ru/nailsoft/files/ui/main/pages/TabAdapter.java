@@ -32,18 +32,7 @@ class TabAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        FileItem fi = data.displayFiles.get(position);
-        if (fi.directory) {
-            if (fi.hidden)
-                return R.layout.item_directory_hidden;
-            else
-                return R.layout.item_directory;
-        } else {
-            if (fi.hidden)
-                return R.layout.item_file_hidden;
-            else
-                return R.layout.item_file;
-        }
+        return R.layout.item_file;
     }
 
     @NonNull
@@ -51,9 +40,6 @@ class TabAdapter extends RecyclerView.Adapter {
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case R.layout.item_file:
-            case R.layout.item_file_hidden:
-            case R.layout.item_directory:
-            case R.layout.item_directory_hidden:
                 return new FileViewHolder(list, parent, viewType, master);
         }
         throw new IllegalArgumentException("" + viewType);

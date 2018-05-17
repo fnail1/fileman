@@ -1,6 +1,7 @@
 package ru.nailsoft.files.ui.main.pages;
 
 import android.support.annotation.LayoutRes;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +63,18 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
             subtitle.setText(file.getSubtitle(subtitle.getResources()));
         } else {
             subtitle.setVisibility(View.GONE);
+        }
+
+        if (file.directory) {
+            if (file.hidden)
+                TextViewCompat.setTextAppearance(title, R.style.HiddenDirectoryNameTextAppearance);
+            else
+                TextViewCompat.setTextAppearance(title, R.style.DirectoryNameTextAppearance);
+        } else {
+            if (file.hidden)
+                TextViewCompat.setTextAppearance(title, R.style.HiddenFileNameTextAppearance);
+            else
+                TextViewCompat.setTextAppearance(title, R.style.FileNameTextAppearance);
         }
 
         ClipboardItem clipboardItem = clipboard().get(file);

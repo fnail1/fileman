@@ -17,6 +17,7 @@ import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.service.AppStateObserver;
 import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.ui.ScreenMetrics;
+import ru.nailsoft.files.utils.GraphicUtils;
 import ru.nailsoft.files.utils.Utils;
 import ru.nailsoft.files.utils.photomanager.adapters.AutoScaledDrawable;
 
@@ -30,6 +31,7 @@ public class IconsManager {
     private final Drawable document;
     private final Bitmap file;
     private final TextPaint extPaint;
+    private final Drawable folder;
 
     public IconsManager(Context context, AppStateObserver stateObserver, ScreenMetrics screenMetrics) {
         cache = new PhotoMemoryCache(stateObserver);
@@ -46,6 +48,8 @@ public class IconsManager {
         extPaint = new TextPaint();
         extPaint.setColor(Utils.getColor(context, R.color.colorAccent));
         extPaint.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.icon_gen_ext_size));
+
+        folder = GraphicUtils.getDrawable(context, R.drawable.ic_folder);
     }
 
     public PhotoRequestBuilder<ImageView> attach(ImageView imageView, FileItem file) {
@@ -97,5 +101,9 @@ public class IconsManager {
                 extPaint);
 
         return bitmap;
+    }
+
+    public Drawable getFolderIcon() {
+        return folder;
     }
 }

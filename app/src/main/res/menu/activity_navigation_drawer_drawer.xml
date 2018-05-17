@@ -3,6 +3,12 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:showIn="navigation_view">
 
+
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search"
+        android:title="@string/search"/>
+
     <group android:checkableBehavior="single">
 
         <item

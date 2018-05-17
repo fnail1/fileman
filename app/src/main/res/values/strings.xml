@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Nailsoft File Manager</string>
+    <string name="app_version">v0.1a</string>
+
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
@@ -28,9 +30,6 @@
 
     <string name="request_permissions_toast">File manager is useless without permissions to access your files. Isn\'t it?</string>
     <string name="title_activity_navigation_drawer">NavigationDrawerActivity</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
     <string name="delete_dialog_title">Deleting files</string>
     <string name="delete_single_dir_message">Delete directory \'%s\' with all files and subdirectories permanently?</string>
     <string name="delete_single_file_message">Delete file \'%s\' permanently?</string>

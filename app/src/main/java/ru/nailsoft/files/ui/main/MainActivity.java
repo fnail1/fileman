@@ -444,6 +444,7 @@ public class MainActivity extends BaseActivity
     public void pasteAll() {
         CopyTask task = new CopyTask(clipboard().values(), currentTab());
         copy().enqueue(task);
+        clipboard().clear();
         CopyDialogFragment.show(this);
         closeFabMenu();
     }

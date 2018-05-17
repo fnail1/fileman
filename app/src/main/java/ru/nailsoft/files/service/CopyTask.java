@@ -82,7 +82,10 @@ public class CopyTask implements Runnable {
     }
 
     public String getCurrentFile() {
-        return currentFile.getName();
+        File file = this.currentFile;
+        if (file == null)
+            return "";
+        return file.getName();
     }
 
     private static abstract class CopyItem {

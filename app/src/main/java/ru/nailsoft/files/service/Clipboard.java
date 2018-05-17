@@ -59,7 +59,7 @@ public class Clipboard {
     }
 
     public Collection<ClipboardItem> values() {
-        return data.values();
+        return new ArrayList<>(data.values());
     }
 
     public int size() {

@@ -178,14 +178,14 @@ public class MainActivity extends BaseActivity
             drawerLayout.closeDrawer(GravityCompat.START);
         } else if (actionMode != ActionMode.NONE) {
             toggleActionMode(ActionMode.NONE);
-            TabData tab = data().tabs.get(pages.getCurrentItem());
+            TabData tab = currentTab();
             tab.selection.clear();
             tab.onDataChanged();
         } else if (fabMenuOpen) {
             closeFabMenu();
         } else if (!searchView.isIconified()) {
             searchView.setIconified(true);
-        } else if (!data().tabs.get(pages.getCurrentItem()).navigateBack()) {
+        } else if (!currentTab().navigateBack()) {
             super.onBackPressed();
         }
     }
@@ -263,7 +263,7 @@ public class MainActivity extends BaseActivity
 
     @OnClick(R.id.new_tab)
     public void onNewTabClick() {
-//        data().newTab(data().tabs.get(pages.getCurrentItem()).getPath());
+//        data().newTab(currentTab().getPath());
         data().newTab(Environment.getExternalStorageDirectory());
     }
 
@@ -278,7 +278,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void addSelectionToClipboard(boolean removeSource) {
-        TabData tab = data().tabs.get(pages.getCurrentItem());
+        TabData tab = currentTab();
         clipboard().addAll(tab.selection, removeSource);
         tab.selection.clear();
 
@@ -305,7 +305,7 @@ public class MainActivity extends BaseActivity
     }
 
     void onDeleteClick() {
-        TabData tab = data().tabs.get(pages.getCurrentItem());
+        TabData tab = currentTab();
         String message;
         switch (tab.selection.size()) {
             case 0:
@@ -340,7 +340,7 @@ public class MainActivity extends BaseActivity
     void onRenameClick() {
         @SuppressLint("InflateParams")
         View view = LayoutInflater.from(this).inflate(R.layout.dialog_rename, null);
-        TabData tab = data().tabs.get(pages.getCurrentItem());
+        TabData tab = currentTab();
         FileItem fileItem = tab.selection.iterator().next();
         EditText text = view.findViewById(R.id.text);
         text.setText(fileItem.file.getName());
@@ -372,18 +372,26 @@ public class MainActivity extends BaseActivity
     }
 
     private void onCloseClick() {
-        int currentItem = pages.getCurrentItem();
-        if (currentItem == 0) {
-            if (data().tabs.size() == 1) {
-                finish();
+        if (actionMode != ActionMode.NONE) {
+            toggleActionMode(ActionMode.NONE);
+            TabData tab = currentTab();
+            tab.selection.clear();
+            tab.onDataChanged();
+        } else if (!searchView.isIconified()) {
+            searchView.setIconified(true);
+        } else {
+            int currentItem = pages.getCurrentItem();
+            if (currentItem == 0) {
+                if (data().tabs.size() == 1) {
+                    finish();
+                } else {
+                    data().closeTab(data().tabs.get(currentItem));
+                }
             } else {
+                pages.setCurrentItem(currentItem - 1);
                 data().closeTab(data().tabs.get(currentItem));
             }
-        } else {
-            pages.setCurrentItem(currentItem - 1);
-            data().closeTab(data().tabs.get(currentItem));
         }
-        toggleActionMode(ActionMode.NONE);
     }
 
     private void openFabMenu() {
@@ -538,8 +546,7 @@ public class MainActivity extends BaseActivity
     }
 
     private void onPathItemClick(View view) {
-        int currentItem = pages.getCurrentItem();
-        data().tabs.get(currentItem).navigate(((File) view.getTag()));
+        currentTab().navigate(((File) view.getTag()));
     }
 
     @Override

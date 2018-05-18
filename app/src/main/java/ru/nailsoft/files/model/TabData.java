@@ -80,7 +80,7 @@ public class TabData {
             List<FileItem> files = this.files;
             for (FileItem file : files) {
                 String name = file.name;
-                int i = name.toLowerCase(Locale.getDefault()).indexOf(filter);
+                int i = name.toLowerCase().indexOf(filter);
                 if (i >= 0) {
                     FileItem clone = createDisplayFileItem(file, name, i);
                     filtered.add(clone);
@@ -91,7 +91,7 @@ public class TabData {
                 if (file.file.isDirectory()) {
                     name = searchRecursive(file.file, filter);
                     if (name != null) {
-                        i = name.toLowerCase(Locale.getDefault()).indexOf(filter);
+                        i = name.toLowerCase().indexOf(filter);
                         FileItem clone = createDisplayFileItem(file, name, i);
                         filtered.add(clone);
                     }
@@ -119,7 +119,7 @@ public class TabData {
     private String searchRecursive(File file, String filter) {
 
         for (String s : file.list()) {
-            if (s.toLowerCase(Locale.getDefault()).contains(filter))
+            if (s.toLowerCase().contains(filter))
                 return s;
         }
 
@@ -142,8 +142,7 @@ public class TabData {
         onDataChanged();
     }
 
-    public void onPaste(FileItem srcFileItem) {
-        File dstFile = new File(getPath(), srcFileItem.file.getName());
+    public void onPaste(File dstFile) {
         FileItem newFileItem = new FileItem(dstFile);
         int i = files.indexOf(newFileItem);
         if (i < 0) {
@@ -154,7 +153,7 @@ public class TabData {
     }
 
     public void setFilter(String filter) {
-        this.filter = filter == null ? "" : filter.toLowerCase(Locale.getDefault());
+        this.filter = filter == null ? "" : filter.toLowerCase();
         onDataChanged();
     }
 

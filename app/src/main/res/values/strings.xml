@@ -20,10 +20,15 @@
     <string name="order">Order</string>
     <string name="name">Name</string>
     <string name="size">Size</string>
+    <string name="extracting">Extracting archive</string>
+    <string name="icon">icon</string>
+    <string name="keep">Keep</string>
 
     <string name="orderBy">Order by</string>
     <string name="date_modified">Date modified</string>
     <string name="new_directory">New directory</string>
+    <string name="copy_content">Copy content</string>
+    <string name="cut_content">Cut content</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -38,5 +43,5 @@
     <string name="file_size_format">size: %s</string>
     <string name="explanation_permission">File manager is useless if not granted access to storage</string>
     <string name="moving_files">Moving files</string>
-    <string name="icon">icon</string>
+    <string name="unarchive_dialog_subtitle">Should we keep the source file?</string>
 </resources>

@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.provider.DocumentsContract;
 import android.text.Spanned;
 import android.text.TextUtils;
@@ -18,7 +20,7 @@ import ru.nailsoft.files.toolkit.io.FileUtils;
 
 import static ru.nailsoft.files.App.app;
 
-public final class FileItem implements Cloneable {
+public final class FileItem implements Cloneable, Parcelable {
 
     public static final FileItem EMPTY = new FileItem(new File("/dev/null"));
     public final File file;
@@ -51,6 +53,50 @@ public final class FileItem implements Cloneable {
         }
 
     }
+
+    protected FileItem(Parcel in) {
+        file = new File(in.readString());
+        hidden = in.readByte() != 0;
+        directory = in.readByte() != 0;
+        name = in.readString();
+        ext = in.readString();
+        order = in.readString();
+        size = in.readLong();
+        mimeType = in.readString();
+        length = in.readString();
+        detailsResolved = in.readByte() != 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(file.getAbsolutePath());
+        dest.writeByte((byte) (hidden ? 1 : 0));
+        dest.writeByte((byte) (directory ? 1 : 0));
+        dest.writeString(name);
+        dest.writeString(ext);
+        dest.writeString(order);
+        dest.writeLong(size);
+        dest.writeString(mimeType);
+        dest.writeString(length);
+        dest.writeByte((byte) (detailsResolved ? 1 : 0));
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<FileItem> CREATOR = new Creator<FileItem>() {
+        @Override
+        public FileItem createFromParcel(Parcel in) {
+            return new FileItem(in);
+        }
+
+        @Override
+        public FileItem[] newArray(int size) {
+            return new FileItem[size];
+        }
+    };
 
     public void resolveDetails() {
         size = FileUtils.getLength(file);
@@ -132,5 +178,13 @@ public final class FileItem implements Cloneable {
         } catch (CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public boolean isArchive() {
+        switch (ext.toLowerCase()) {
+            case ".zip":
+                return true;
+        }
+        return false;
     }
 }

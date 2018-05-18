@@ -444,7 +444,7 @@ public class FileUtils {
             long length = query(files).longSum(FileUtils::getLength);
             if (length < 0) {
                 logV("getLength", "" + length);
-                List<Long> longs = query(files).select(f -> f.length()).toList();
+                List<Long> longs = query(files).select(File::length).toList();
                 length = 0;
             }
             return length;

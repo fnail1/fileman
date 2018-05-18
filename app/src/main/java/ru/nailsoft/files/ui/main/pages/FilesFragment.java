@@ -21,6 +21,8 @@ import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.model.MainActivityData;
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.service.Clipboard;
+import ru.nailsoft.files.ui.base.BaseActivity;
+import ru.nailsoft.files.ui.ExtractDialogFragment;
 import ru.nailsoft.files.ui.base.BaseFragment;
 
 import static ru.nailsoft.files.App.clipboard;
@@ -107,6 +109,8 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
             LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
             data.saveScrollState(layoutManager.onSaveInstanceState());
             data.navigate(file.file);
+        } else if (file.isArchive()) {
+            ExtractDialogFragment.show((BaseActivity) getActivity(), file);
         } else {
             file.open(getActivity());
         }

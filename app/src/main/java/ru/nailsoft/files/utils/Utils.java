@@ -249,7 +249,7 @@ public final class Utils {
         StringBuilder sb = new StringBuilder();
         int type = -1;
 
-        for (char c : value.toLowerCase(Locale.getDefault()).toCharArray()) {
+        for (char c : value.toLowerCase().toCharArray()) {
             int t = Character.getType(c);
             if (t != type) {
                 type = t;
@@ -268,7 +268,7 @@ public final class Utils {
         ArrayList<String> r = new ArrayList<>();
         int type = -1;
 
-        for (char c : filter.toLowerCase(Locale.getDefault()).toCharArray()) {
+        for (char c : filter.toLowerCase().toCharArray()) {
             int t = Character.getType(c);
             if (t != type) {
                 if (type != Character.DIRECTIONALITY_WHITESPACE && sb.length() > 0) {

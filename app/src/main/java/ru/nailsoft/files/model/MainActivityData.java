@@ -5,11 +5,15 @@ import android.os.SystemClock;
 import android.support.annotation.UiThread;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import ru.nailsoft.files.service.FileInfoCache;
 import ru.nailsoft.files.toolkit.ThreadPool;

@@ -17,31 +17,17 @@ public class Clipboard {
         }
     };
 
-    public boolean toggleSelection(FileItem file, boolean removeSource) {
-        boolean selected = data.containsKey(file);
-        if (selected) {
-            ClipboardItem item = data.remove(file);
-            onChanged(new ClipboardEventArgs(null, Collections.singleton(item)));
-        } else {
-            ClipboardItem clipboardItem = new ClipboardItem(file, removeSource);
-            data.put(file, clipboardItem);
-            onChanged(new ClipboardEventArgs(Collections.singleton(clipboardItem), null));
-        }
-
-
-        return !selected;
+    public void addAll(Collection<FileItem> selection, boolean removeSource) {
+        addAll(selection, removeSource, false);
     }
 
-
-    public void addAll(Collection<FileItem> selection, boolean removeSource) {
-        ArrayList<ClipboardItem> items = new ArrayList<>(selection.size());
+    public void addAll(Collection<FileItem> selection, boolean removeSource, boolean extract) {
         for (FileItem item : selection) {
-            ClipboardItem clipboardItem = new ClipboardItem(item, removeSource);
-            if (data.put(item, clipboardItem) == null)
-                items.add(clipboardItem);
+            ClipboardItem clipboardItem = new ClipboardItem(item, removeSource, extract);
+            data.put(item, clipboardItem);
         }
 
-        onChanged(new ClipboardEventArgs(items, null));
+        onChanged(new ClipboardEventArgs());
     }
 
     protected void onChanged(ClipboardEventArgs args) {
@@ -49,9 +35,8 @@ public class Clipboard {
     }
 
     public void clear() {
-        ArrayList<ClipboardItem> items = new ArrayList<>(data.values());
         data.clear();
-        onChanged(new ClipboardEventArgs(null, items));
+        onChanged(new ClipboardEventArgs());
     }
 
     public boolean isEmpty() {
@@ -76,7 +61,7 @@ public class Clipboard {
     }
 
     public class ClipboardEventArgs {
-        public ClipboardEventArgs(Collection<ClipboardItem> added, Collection<ClipboardItem> removed) {
+        public ClipboardEventArgs() {
 
         }
 //        public final Collection<FileItem> added;

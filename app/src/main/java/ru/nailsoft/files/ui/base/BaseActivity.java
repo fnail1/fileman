@@ -17,14 +17,14 @@ import android.widget.Toast;
 
 import ru.nailsoft.files.utils.AppSettingsUtils;
 import ru.nailsoft.files.R;
-import ru.nailsoft.files.ui.ReqCodes;
 
-import static ru.nailsoft.files.App.appState;
 import static ru.nailsoft.files.App.prefs;
 import static ru.nailsoft.files.diagnostics.Logger.traceUi;
 
 public class BaseActivity extends AppCompatActivity {
-    private Toolbar toolbar;
+    private Toolbar mToolbar;
+    private boolean resumed;
+
     private boolean requestPermission;
     private boolean requestSettings;
     private int explanationStrResId;
@@ -46,10 +46,10 @@ public class BaseActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         traceUi(this);
 
-        Toolbar toolbar = getToolbar();
-        if (toolbar != null) {
-            toolbar.setNavigationOnClickListener(this::onUpButtonClick);
-        }
+//        final Toolbar toolbar = getToolbar();
+//        if (toolbar != null) {
+//            toolbar.setNavigationOnClickListener(this::onUpButtonClick);
+//        }
     }
 
     @Override
@@ -74,21 +74,22 @@ public class BaseActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         traceUi(this);
-        appState().setTopActivity(this);
 
         if (Build.VERSION_CODES.LOLLIPOP <= Build.VERSION.SDK_INT && Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
             getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
+
+        resumed = true;
     }
 
     @Override
     protected void onPause() {
+        resumed = false;
         super.onPause();
         traceUi(this);
-        appState().resetTopActivity(this);
     }
 
-    public boolean requestPermissions(ReqCodes reqCode, @StringRes int explanationStrResId, String... permissions) {
+    public boolean requestPermissions(int reqCode, @StringRes int explanationStrResId, String... permissions) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             this.explanationStrResId = explanationStrResId;
             requestPermission = false;
@@ -104,10 +105,11 @@ public class BaseActivity extends AppCompatActivity {
             }
 
             if (requestPermission || requestSettings) {
-                requestPermissions(permissions, reqCode.code());
+                requestPermissions(permissions, reqCode);
                 return false;
             }
         }
+
         return true;
     }
 
@@ -143,18 +145,20 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     protected void onRequestedPermissionsGranted(int requestCode, String[] permissions, int[] grantResults) {
+
     }
+
 
     public Toolbar getToolbar() {
-        if (toolbar == null) {
-            toolbar = (Toolbar) findViewById(R.id.toolbar);
-            if (toolbar != null)
-                setSupportActionBar(toolbar);
+        if (mToolbar == null) {
+            mToolbar = (Toolbar) findViewById(R.id.toolbar);
+            if (mToolbar != null)
+                setSupportActionBar(mToolbar);
         }
-        return toolbar;
+        return mToolbar;
     }
 
-    protected void onUpButtonClick(View view) {
+    private void onUpButtonClick(View view) {
         final Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content);
         boolean handled = false;
         if (currentFragment != null && currentFragment instanceof FragmentInterface)
@@ -163,4 +167,23 @@ public class BaseActivity extends AppCompatActivity {
         if (!handled)
             finish();
     }
+
+
+
+    public interface FragmentInterface {
+
+        /**
+         * handle system back button
+         * @return true if consumed, false otherwise
+         */
+        boolean onBackPressed();
+
+        /**
+         * handle toolbar up button
+         * @return true if consumed, false otherwise
+         */
+        boolean onUpPressed() ;
+    }
+
+
 }

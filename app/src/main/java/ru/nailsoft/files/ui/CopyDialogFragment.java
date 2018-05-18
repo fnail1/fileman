@@ -16,6 +16,7 @@ import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ru.nailsoft.files.R;
 import ru.nailsoft.files.service.CopyTask;
+import ru.nailsoft.files.ui.base.BaseActivity;
 
 import static ru.nailsoft.files.App.copy;
 

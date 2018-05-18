@@ -1,9 +1,15 @@
 package ru.nailsoft.files.service;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.toolkit.io.FileOpException;
@@ -16,7 +22,6 @@ public class CopyTask implements Runnable {
 
     private static void listFiles(ClipboardItem src, File srcFile, File dst, ArrayList<CopyItem> out) {
 
-        dst = new File(dst, srcFile.getName());
 
         if (srcFile.isDirectory()) {
             out.add(new CopyDir(src, srcFile, dst));
@@ -26,6 +31,8 @@ public class CopyTask implements Runnable {
                     listFiles(src, file, dst, out);
                 }
             }
+        } else if (src.extract) {
+            out.add(new CopyArchive(src, dst));
         } else {
             out.add(new CopyFile(src, srcFile, dst));
         }
@@ -75,9 +82,7 @@ public class CopyTask implements Runnable {
             item.finalize(this);
             currentFile = item.src;
         }
-        for (ClipboardItem file : src) {
-            dst.onPaste(file.file);
-        }
+
         state = State.COMPLETE;
     }
 
@@ -88,87 +93,9 @@ public class CopyTask implements Runnable {
         return file.getName();
     }
 
-    private static abstract class CopyItem {
-        protected final ClipboardItem clipboardItem;
-        protected final File src;
-        protected final File dst;
-
-        private CopyItem(ClipboardItem clipboardItem, File src, File dst) {
-            this.clipboardItem = clipboardItem;
-            this.src = src;
-            this.dst = dst;
-        }
-
-        void doCopy(CopyTask task) throws IOException, FileOpException {
-            if (dst.exists() && !task.requestOverride(src))
-                return;
-
-            performCopy(task);
-        }
-
-        void prepare(CopyTask task) {
-        }
-
-        protected abstract void performCopy(CopyTask task) throws IOException, FileOpException;
-
-        protected void finalize(CopyTask task) {
-        }
-
-    }
-
     private boolean requestOverride(File src) {
         return false;
     }
-
-    private static class CopyFile extends CopyItem {
-
-        private CopyFile(ClipboardItem clipboardItem, File src, File dst) {
-            super(clipboardItem, src, dst);
-        }
-
-        @Override
-        public void performCopy(CopyTask task) throws IOException, FileOpException {
-            if (clipboardItem.removeSource)
-                FileUtils.rename(src, dst);
-            else
-                FileUtils.copyFile(src, dst);
-        }
-    }
-
-    private static class CopyDir extends CopyItem {
-        private boolean complete;
-
-        public CopyDir(ClipboardItem clipboardItem, File src, File dst) {
-            super(clipboardItem, src, dst);
-        }
-
-        @Override
-        public void performCopy(CopyTask task) throws FileOpException {
-            complete = !clipboardItem.removeSource;
-            if (clipboardItem.removeSource) {
-                try {
-                    FileUtils.rename(src, dst);
-                    complete = true;
-                } catch (FileOpException e) {
-                    throw e;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                if (!dst.mkdir())
-                    throw new FileOpException(FileOpException.FileOp.MKDIR, dst);
-            }
-        }
-
-        @Override
-        public void finalize(CopyTask task) {
-            if (clipboardItem.removeSource && !complete) {
-                FileUtils.deleteRecursive(src);
-            }
-            super.finalize(task);
-        }
-    }
-
 
     public State getState() {
         return state;
@@ -183,6 +110,157 @@ public class CopyTask implements Runnable {
     }
 
     public enum State {
-        NEW, ANALIZE, PROGRESS, FINALIZE, COMPLETE, FAIL
+        NEW, ANALIZE, PROGRESS, FINALIZE, COMPLETE, FAIL;
     }
+
+    private static abstract class CopyItem {
+        final ClipboardItem clipboardItem;
+        protected final File src;
+        final File dst;
+
+        private CopyItem(ClipboardItem clipboardItem, File src, File dst) {
+            this.clipboardItem = clipboardItem;
+            this.src = src;
+            this.dst = dst;
+        }
+
+        void doCopy(CopyTask task) throws IOException, FileOpException {
+            if (!dst.exists())
+                throw new FileNotFoundException("Destination directory not exists");
+
+            performCopy(task);
+        }
+
+        void prepare(CopyTask task) {
+        }
+
+        abstract void performCopy(CopyTask task) throws IOException, FileOpException;
+
+        void finalize(CopyTask task) {
+        }
+
+    }
+
+    private static class CopyFile extends CopyItem {
+
+
+        private CopyFile(ClipboardItem clipboardItem, File src, File dst) {
+            super(clipboardItem, src, dst);
+        }
+
+        @Override
+        void performCopy(CopyTask task) throws IOException, FileOpException {
+            File out = new File(dst, src.getName());
+            if (clipboardItem.removeSource)
+                FileUtils.rename(src, out);
+            else
+                FileUtils.copyFile(src, out);
+
+            if (clipboardItem.file.file == src) {
+                task.dst.onPaste(out);
+            }
+        }
+
+    }
+
+    private static class CopyDir extends CopyItem {
+
+        private boolean complete;
+
+        CopyDir(ClipboardItem clipboardItem, File src, File dst) {
+            super(clipboardItem, src, dst);
+        }
+
+        @Override
+        void performCopy(CopyTask task) throws FileOpException {
+            complete = !clipboardItem.removeSource;
+            File out = new File(dst, src.getName());
+            if (clipboardItem.removeSource) {
+                try {
+                    FileUtils.rename(src, out);
+                    complete = true;
+                    if (clipboardItem.file.file == src) {
+                        task.dst.onPaste(out);
+                    }
+                } catch (FileOpException e) {
+                    throw e;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                if (!out.mkdir())
+                    throw new FileOpException(FileOpException.FileOp.MKDIR, out);
+
+                if (clipboardItem.file.file == src) {
+                    task.dst.onPaste(out);
+                }
+            }
+        }
+
+        @Override
+        void finalize(CopyTask task) {
+            if (clipboardItem.removeSource && !complete) {
+                FileUtils.deleteRecursive(src);
+            }
+            super.finalize(task);
+        }
+
+    }
+
+
+    private static class CopyArchive extends CopyItem {
+        CopyArchive(ClipboardItem src, File dst) {
+            super(src, src.file.file, dst);
+        }
+
+        @Override
+        void performCopy(CopyTask task) throws IOException, FileOpException {
+            try (ZipInputStream zip = new ZipInputStream(new BufferedInputStream(new FileInputStream(src)))) {
+                ZipEntry entry;
+                int count;
+                byte[] buffer = new byte[8192];
+                while ((entry = zip.getNextEntry()) != null) {
+                    File file = new File(dst, entry.getName());
+                    File dir = entry.isDirectory() ? file : file.getParentFile();
+
+                    if (dir.exists()) {
+                        if (!dir.isDirectory())
+                            throw new IOException("File already exists but it is not a directory");
+                    } else if (!dir.mkdirs()) {
+                        throw new FileOpException(FileOpException.FileOp.MKDIR, dir);
+                    }
+
+                    if (entry.isDirectory()) {
+                        if (dir.getParentFile().equals(dst)) {
+                            task.dst.onPaste(dir);
+                        }
+                        continue;
+                    }
+
+                    try (FileOutputStream out = new FileOutputStream(file)) {
+                        while ((count = zip.read(buffer)) != -1)
+                            out.write(buffer, 0, count);
+                    }
+
+                    long time = entry.getTime();
+                    if (time > 0) {
+                        //noinspection ResultOfMethodCallIgnored
+                        file.setLastModified(time);
+                    }
+
+                    if (dir.equals(dst)) {
+                        task.dst.onPaste(file);
+                    }
+                }
+            }
+        }
+
+        @Override
+        void finalize(CopyTask task) {
+            super.finalize(task);
+            if (clipboardItem.removeSource)
+                src.delete();
+        }
+    }
+
 }

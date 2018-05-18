@@ -238,27 +238,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onClick() {
-
-            if (file.removeSource) {
-                try {
-                    FileUtils.rename(file.file.file, new File(callback.currentTab().getPath(), file.file.file.getName()));
-                } catch (IOException | FileOpException e) {
-                    e.printStackTrace();
-                }
-            } else {
-
-                try {
-                    FileUtils.copy(file.file.file, new File(callback.currentTab().getPath(), file.file.file.getName()), false);
-                } catch (FileOpException e) {
-                    e.printStackTrace();
-                    if (e.op == FileOpException.FileOp.RENAME && e.dstExist) {
-
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
+            callback.paste(file);
         }
     }
 
@@ -301,7 +281,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
         @Override
         public void onClick() {
-            callback.openFile(file.file);
+            callback.paste(file);
         }
 
         @Override
@@ -348,17 +328,6 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         }
     }
 
-//    public static class CloseItem extends CommonItem {
-//        CloseItem(Context context) {
-//            super(context.getResources().getString(R.string.close), null, R.drawable.ic_close_primary);
-//        }
-//
-//        @Override
-//        public void onClick() {
-//            callback.closeFabMenu();
-//        }
-//    }
-
     public static class PasteAllItem extends CommonItem {
         PasteAllItem(Context context) {
             super(context.getString(R.string.pasteAll), null, R.drawable.ic_paste);
@@ -398,6 +367,6 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
         TabData currentTab();
 
-        void openFile(ru.nailsoft.files.model.FileItem file);
+        void paste(ClipboardItem file);
     }
 }

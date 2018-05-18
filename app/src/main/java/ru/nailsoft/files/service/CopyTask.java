@@ -21,12 +21,11 @@ public class CopyTask implements Runnable {
 
 
     private static void listFiles(ClipboardItem src, File srcFile, File dst, ArrayList<CopyItem> out) {
-
-
         if (srcFile.isDirectory()) {
             out.add(new CopyDir(src, srcFile, dst));
 
             if (!src.removeSource) {
+                dst = new File(dst, srcFile.getName());
                 for (File file : srcFile.listFiles()) {
                     listFiles(src, file, dst, out);
                 }

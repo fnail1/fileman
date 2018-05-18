@@ -27,7 +27,7 @@ public class Clipboard {
             data.put(item, clipboardItem);
         }
 
-        onChanged(new ClipboardEventArgs());
+        onChanged(new ClipboardEventArgs(true));
     }
 
     protected void onChanged(ClipboardEventArgs args) {
@@ -36,7 +36,7 @@ public class Clipboard {
 
     public void clear() {
         data.clear();
-        onChanged(new ClipboardEventArgs());
+        onChanged(new ClipboardEventArgs(false));
     }
 
     public boolean isEmpty() {
@@ -55,14 +55,21 @@ public class Clipboard {
         return data.get(file);
     }
 
+    public void remove(ClipboardItem file) {
+        data.remove(file.file);
+        onChanged(new ClipboardEventArgs(false));
+    }
+
     public interface ClipboardEventHandler {
 
         void onClipboardChanged(ClipboardEventArgs args);
     }
 
     public class ClipboardEventArgs {
-        public ClipboardEventArgs() {
+        public final boolean hasNew;
 
+        public ClipboardEventArgs(boolean hasNew) {
+            this.hasNew = hasNew;
         }
 //        public final Collection<FileItem> added;
 //        public final Collection<FileItem> removed;

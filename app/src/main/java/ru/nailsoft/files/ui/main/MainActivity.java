@@ -30,6 +30,7 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -202,12 +203,14 @@ public class MainActivity extends BaseActivity
         searchView.setOnQueryTextListener(this);
         menuClose = menu.findItem(R.id.close);
         actionMode = ActionMode.MANY;
-        toggleActionMode(ActionMode.NONE);
+        onSelectionChanged(currentTab());
         return true;
     }
 
     public void toggleActionMode(ActionMode mode) {
         if (mode == actionMode)
+            return;
+        if (menuCopy == null)
             return;
         menuCopy.setVisible(mode != ActionMode.NONE);
         menuCut.setVisible(mode != ActionMode.NONE);
@@ -285,7 +288,7 @@ public class MainActivity extends BaseActivity
     @Override
     public void onClipboardChanged(Clipboard.ClipboardEventArgs args) {
         if (fabMenuOpen) {
-            buildFabMenu(true);
+            buildFabMenu(args.hasNew);
         } else {
             Animation selectionChangedAnimation = new Animation() {
                 @Override
@@ -406,6 +409,18 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
+    public void closeFabMenu() {
+        fabMenuOpen = false;
+        fabMenu.setVisibility(View.GONE);
+        fabBackground.animate()
+                .alpha(0)
+                .setDuration(200)
+                .withEndAction(() -> fabBackground.setVisibility(View.GONE));
+
+        fab.show();
+    }
+
+    @Override
     public void selectAll() {
         currentTab().selectAll();
         closeFabMenu();
@@ -428,24 +443,22 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void closeFabMenu() {
-        fabMenuOpen = false;
-        fabMenu.setVisibility(View.GONE);
-        fabBackground.animate()
-                .alpha(0)
-                .setDuration(200)
-                .withEndAction(() -> fabBackground.setVisibility(View.GONE));
-
-        fab.show();
-    }
-
-    @Override
     public void pasteAll() {
         CopyTask task = new CopyTask(clipboard().values(), currentTab());
         copy().enqueue(task);
         clipboard().clear();
         CopyDialogFragment.show(this);
         closeFabMenu();
+    }
+
+    @Override
+    public void paste(ClipboardItem file) {
+        CopyTask task = new CopyTask(Collections.singleton(file), currentTab());
+        copy().enqueue(task);
+        clipboard().remove(file);
+        CopyDialogFragment.show(this);
+        closeFabMenu();
+
     }
 
     @Override
@@ -537,11 +550,6 @@ public class MainActivity extends BaseActivity
     @Override
     public TabData currentTab() {
         return data().tabs.get(pages.getCurrentItem());
-    }
-
-    @Override
-    public void openFile(FileItem file) {
-
     }
 
     @Override

@@ -30,6 +30,7 @@
     <string name="new_directory">New directory</string>
     <string name="copy_content">Copy content</string>
     <string name="cut_content">Cut content</string>
+    <string name="openAs">Open as...</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -45,7 +46,6 @@
     <string name="explanation_permission">File manager is useless if not granted access to storage</string>
     <string name="moving_files">Moving files</string>
     <string name="unarchive_dialog_subtitle">Should we keep the source file?</string>
-    <string name="openAs">Open As</string>
 
 
     <array name="open_type">

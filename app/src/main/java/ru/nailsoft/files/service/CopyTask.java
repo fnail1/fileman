@@ -17,7 +17,7 @@ import ru.nailsoft.files.toolkit.io.FileUtils;
 
 import static ru.nailsoft.files.App.copy;
 
-public class CopyTask implements Runnable {
+public class CopyTask extends AbsTask {
 
 
     private static void listFiles(ClipboardItem src, File srcFile, File dst, ArrayList<CopyItem> out) {
@@ -39,10 +39,7 @@ public class CopyTask implements Runnable {
 
     private final Collection<ClipboardItem> src;
     private final TabData dst;
-    private State state = State.NEW;
-    private int progress = 0;
-    private int count;
-    private File currentFile;
+
 
     public CopyTask(Collection<ClipboardItem> src, TabData dst) {
         this.src = src;
@@ -52,65 +49,44 @@ public class CopyTask implements Runnable {
     @Override
     public void run() {
         copy().onStart(this);
-        state = State.ANALIZE;
+        setState(AbsTask.State.ANALIZE);
         ArrayList<CopyItem> queue = new ArrayList<>(src.size());
         for (ClipboardItem file : src) {
             listFiles(file, file.file.file, dst.getPath(), queue);
-            currentFile = file.file.file;
+            setCurrentFile(file.file.file);
         }
 
-        count = queue.size();
+        setCount(queue.size());
         for (CopyItem item : queue) {
             item.prepare(this);
-            currentFile = item.src;
+            setCurrentFile(item.src);
         }
 
-        state = State.PROGRESS;
+        setState(AbsTask.State.PROGRESS);
         for (CopyItem item : queue) {
             try {
-                progress++;
-                currentFile = item.src;
+                incrementProgress();
+                setCurrentFile(item.src);
                 item.doCopy(this);
             } catch (IOException | FileOpException e) {
                 e.printStackTrace();
             }
         }
 
-        state = State.FINALIZE;
+        setState(AbsTask.State.FINALIZE);
         for (CopyItem item : queue) {
             item.finalize(this);
-            currentFile = item.src;
+            setCurrentFile(item.src);
         }
 
-        state = State.COMPLETE;
+        setState(AbsTask.State.COMPLETE);
     }
 
-    public String getCurrentFile() {
-        File file = this.currentFile;
-        if (file == null)
-            return "";
-        return file.getName();
-    }
 
     private boolean requestOverride(File src) {
         return false;
     }
 
-    public State getState() {
-        return state;
-    }
-
-    public int getProgress() {
-        return progress;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public enum State {
-        NEW, ANALIZE, PROGRESS, FINALIZE, COMPLETE, FAIL;
-    }
 
     private static abstract class CopyItem {
         final ClipboardItem clipboardItem;

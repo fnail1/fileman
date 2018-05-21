@@ -11,6 +11,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/padding_quoter"
         android:selectAllOnFocus="true"
-        android:maxLines="1"/>
+        android:singleLine="true"/>
 
 </FrameLayout>

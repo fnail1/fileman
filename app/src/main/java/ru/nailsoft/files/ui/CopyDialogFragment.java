@@ -15,7 +15,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 import ru.nailsoft.files.R;
-import ru.nailsoft.files.service.CopyTask;
+import ru.nailsoft.files.service.AbsTask;
 import ru.nailsoft.files.ui.base.BaseActivity;
 
 import static ru.nailsoft.files.App.copy;
@@ -60,9 +60,9 @@ public class CopyDialogFragment extends DialogFragment implements DialogInterfac
         if (progressText == null)
             return;
 
-        CopyTask task = copy().getCurrentTask();
+        AbsTask task = copy().getCurrentTask();
         if (task != null) {
-            if (task.getState() == CopyTask.State.COMPLETE) {
+            if (task.getState() == AbsTask.State.COMPLETE) {
                 dismiss();
                 return;
             }

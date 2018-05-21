@@ -41,7 +41,9 @@ import ru.nailsoft.files.model.MainActivityData;
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.service.Clipboard;
 import ru.nailsoft.files.service.ClipboardItem;
+import ru.nailsoft.files.service.CopyService;
 import ru.nailsoft.files.service.CopyTask;
+import ru.nailsoft.files.service.ZipTask;
 import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.toolkit.concurrent.ExclusiveExecutor2;
 import ru.nailsoft.files.toolkit.io.FileOpException;
@@ -87,6 +89,7 @@ public class MainActivity extends BaseActivity
     private MenuItem menuRename;
     private MenuItem menuShare;
     private MenuItem menuSearch;
+    private MenuItem menuZip;
     private MenuItem menuClose;
 
     private FabMenuAdapter fabMenuAdapter;
@@ -204,6 +207,7 @@ public class MainActivity extends BaseActivity
         menuSearch = menu.findItem(R.id.search);
         searchView = ((SearchView) menuSearch.getActionView());
         searchView.setOnQueryTextListener(this);
+        menuZip = menu.findItem(R.id.zip);
         menuClose = menu.findItem(R.id.close);
         actionMode = ActionMode.MANY;
         onSelectionChanged(currentTab());
@@ -224,6 +228,7 @@ public class MainActivity extends BaseActivity
         menuRename.setEnabled(mode == ActionMode.SINGLE);
         menuShare.setVisible(mode != ActionMode.NONE);
         menuSearch.setVisible(mode == ActionMode.NONE);
+        menuZip.setVisible(mode != ActionMode.NONE);
         menuClose.setVisible(true);
         path.setVisibility(mode == ActionMode.NONE ? View.VISIBLE : View.GONE);
         actionMode = mode;
@@ -252,8 +257,9 @@ public class MainActivity extends BaseActivity
             case R.id.share:
                 onShareClick();
                 return true;
-//            case R.id.search:
-//                return true;
+            case R.id.zip:
+                onZipClick();
+                return true;
             case R.id.close:
                 onCloseClick();
                 return true;
@@ -306,25 +312,6 @@ public class MainActivity extends BaseActivity
         tab.selection.clear();
 
         tab.onDataChanged();
-    }
-
-    @Override
-    public void onClipboardChanged(Clipboard.ClipboardEventArgs args) {
-        if (fabMenuOpen) {
-            buildFabMenu(args.hasNew);
-        } else {
-            Animation selectionChangedAnimation = new Animation() {
-                @Override
-                protected void applyTransformation(float alpha, Transformation t) {
-                    super.applyTransformation(alpha, t);
-                    float scale = (float) (1 + 0.2 * (1 - 2 * Math.abs(alpha - 0.5)));
-                    fab.setScaleX(scale);
-                    fab.setScaleY(scale);
-                }
-            };
-            selectionChangedAnimation.setDuration(400);
-            fab.startAnimation(selectionChangedAnimation);
-        }
     }
 
     void onDeleteClick() {
@@ -398,6 +385,35 @@ public class MainActivity extends BaseActivity
         toggleActionMode(ActionMode.NONE);
     }
 
+    private void onZipClick() {
+
+        @SuppressLint("InflateParams")
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_rename, null);
+        TabData tab = currentTab();
+        ArrayList<FileItem> items = new ArrayList<>(tab.selection);
+        EditText text = view.findViewById(R.id.text);
+        String n = items.size() == 1 ? items.get(0).name : tab.getPath().getName();
+        n = FileUtils.replaceExt(n, "zip");
+        text.setText(n);
+
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle(R.string.compress_files)
+                .setView(view)
+                .setPositiveButton(R.string.compress, (dialog, which) -> {
+                    ZipTask task = new ZipTask(items, tab, text.getText().toString());
+                    copy().enqueue(task);
+                    CopyDialogFragment.show(this);
+                    tab.selection.clear();
+                    tab.onDataChanged();
+                    toggleActionMode(ActionMode.NONE);
+                })
+                .create();
+        alertDialog.setOnShowListener(dialog -> Utils.showKeyboard(text));
+
+        alertDialog.show();
+
+    }
+
     private void onCloseClick() {
         if (actionMode != ActionMode.NONE) {
             toggleActionMode(ActionMode.NONE);
@@ -453,6 +469,25 @@ public class MainActivity extends BaseActivity
                 .withEndAction(() -> fabBackground.setVisibility(View.GONE));
 
         fab.show();
+    }
+
+    @Override
+    public void onClipboardChanged(Clipboard.ClipboardEventArgs args) {
+        if (fabMenuOpen) {
+            buildFabMenu(args.hasNew);
+        } else {
+            Animation selectionChangedAnimation = new Animation() {
+                @Override
+                protected void applyTransformation(float alpha, Transformation t) {
+                    super.applyTransformation(alpha, t);
+                    float scale = (float) (1 + 0.2 * (1 - 2 * Math.abs(alpha - 0.5)));
+                    fab.setScaleX(scale);
+                    fab.setScaleY(scale);
+                }
+            };
+            selectionChangedAnimation.setDuration(400);
+            fab.startAnimation(selectionChangedAnimation);
+        }
     }
 
     @Override

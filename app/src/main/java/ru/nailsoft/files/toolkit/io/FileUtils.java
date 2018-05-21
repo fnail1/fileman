@@ -413,19 +413,19 @@ public class FileUtils {
         }
     }
 
-    private static void zipEntry(File dir, File file, ZipOutputStream out, byte[] buffer) throws IOException {
+    private static void zipEntry(File root, File file, ZipOutputStream out, byte[] buffer) throws IOException {
         if (file.isDirectory()) {
-            ZipEntry entry = new ZipEntry(file.getAbsolutePath().substring(dir.getAbsolutePath().length()) + '/');
+            ZipEntry entry = new ZipEntry(file.getAbsolutePath().substring(root.getAbsolutePath().length()) + '/');
             out.putNextEntry(entry);
             for (File child : file.listFiles())
-                zipEntry(dir, child, out, buffer);
+                zipEntry(root, child, out, buffer);
             return;
         }
 
         FileInputStream fi = new FileInputStream(file);
         BufferedInputStream origin = new BufferedInputStream(fi, 16 * 1024);
         try {
-            ZipEntry entry = new ZipEntry(file.getAbsolutePath().substring(dir.getAbsolutePath().length()));
+            ZipEntry entry = new ZipEntry(file.getAbsolutePath().substring(root.getAbsolutePath().length()));
             out.putNextEntry(entry);
             int count;
             while ((count = origin.read(buffer, 0, buffer.length)) != -1) {
@@ -471,5 +471,18 @@ public class FileUtils {
 
     public static Drawable resolveFileIcon() {
         return null;
+    }
+
+    @NonNull
+    public static String replaceExt(@NonNull String name, @NonNull String ext) {
+        if (ext.charAt(0) != '.')
+            ext = '.' + ext;
+
+        int ptidx = name.lastIndexOf('.');
+        int s1idx = name.lastIndexOf('\\');
+        int s2idx = name.lastIndexOf('/');
+        if (ptidx > 0 && ptidx > s1idx && ptidx > s2idx)
+            return name.substring(0, ptidx) + ext;
+        return name + ext;
     }
 }

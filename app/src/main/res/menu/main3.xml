@@ -5,60 +5,67 @@
 
     <item
         android:id="@+id/copy"
+        android:icon="@drawable/ic_copy"
         android:orderInCategory="100"
         android:title="@string/copy"
-        android:icon="@drawable/ic_copy"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/cut"
+        android:icon="@drawable/ic_cut"
         android:orderInCategory="100"
         android:title="@string/cut"
-        android:icon="@drawable/ic_cut"
         app:showAsAction="always"/>
 
     <item
         android:id="@+id/share"
+        android:icon="@drawable/ic_share"
         android:orderInCategory="100"
         android:title="@string/share"
-        android:icon="@drawable/ic_share"
         app:showAsAction="always"/>
+
 
     <item
-        android:id="@+id/search"
+        android:id="@+id/open"
+        android:icon="@drawable/ic_open"
         android:orderInCategory="100"
-        android:title="@string/search"
-        android:icon="@drawable/ic_search"
-        app:actionViewClass="android.support.v7.widget.SearchView"
+        android:title="@string/openAs"
         app:showAsAction="always"/>
-
 
     <item
         android:id="@+id/delete"
+        android:icon="@drawable/ic_delete"
         android:orderInCategory="100"
         android:title="@string/delete"
-        android:icon="@drawable/ic_delete"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/rename"
+        android:icon="@drawable/ic_rename"
         android:orderInCategory="100"
         android:title="@string/rename"
-        android:icon="@drawable/ic_rename"
         app:showAsAction="ifRoom"/>
 
     <item
-        android:id="@+id/open"
+        android:id="@+id/zip"
+        android:icon="@drawable/ic_archive"
         android:orderInCategory="100"
-        android:title="@string/openAs"
-        android:icon="@drawable/ic_open"
+        android:title="@string/compress"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/search"
+        android:icon="@drawable/ic_search"
+        android:orderInCategory="100"
+        android:title="@string/search"
+        app:actionViewClass="android.support.v7.widget.SearchView"
+        app:showAsAction="always"/>
 
     <item
         android:id="@+id/close"
+        android:icon="@drawable/ic_close"
         android:orderInCategory="100"
         android:title="@string/close"
-        android:icon="@drawable/ic_close"
         app:showAsAction="ifRoom"/>
 
 </menu>

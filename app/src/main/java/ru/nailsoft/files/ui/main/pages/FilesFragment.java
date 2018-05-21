@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import java.io.File;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -24,6 +25,7 @@ import ru.nailsoft.files.service.Clipboard;
 import ru.nailsoft.files.ui.base.BaseActivity;
 import ru.nailsoft.files.ui.ExtractDialogFragment;
 import ru.nailsoft.files.ui.base.BaseFragment;
+import ru.nailsoft.files.utils.ShareHelper;
 
 import static ru.nailsoft.files.App.clipboard;
 import static ru.nailsoft.files.App.data;
@@ -105,14 +107,15 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
 
     @Override
     public void openFile(FileItem file) {
+        BaseActivity context = (BaseActivity) Objects.requireNonNull(getActivity());
         if (file.directory) {
             LinearLayoutManager layoutManager = (LinearLayoutManager) list.getLayoutManager();
             data.saveScrollState(layoutManager.onSaveInstanceState());
             data.navigate(file.file);
         } else if (file.isArchive()) {
-            ExtractDialogFragment.show((BaseActivity) getActivity(), file);
+            ExtractDialogFragment.show(context, file);
         } else {
-            file.open(getActivity());
+            ShareHelper.share(context, file.file.getAbsolutePath(), file.mimeType, ShareHelper.OpenMode.OPEN);
         }
     }
 

@@ -2,8 +2,12 @@ package ru.nailsoft.files.ui.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,6 +18,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -31,6 +36,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -46,16 +53,19 @@ import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.toolkit.concurrent.ExclusiveExecutor2;
 import ru.nailsoft.files.toolkit.io.FileOpException;
 import ru.nailsoft.files.toolkit.io.FileUtils;
+import ru.nailsoft.files.ui.OpenAsDialogFragment;
 import ru.nailsoft.files.ui.base.BaseActivity;
 import ru.nailsoft.files.ui.CopyDialogFragment;
 import ru.nailsoft.files.ui.ReqCodes;
 import ru.nailsoft.files.ui.main.pages.FilesFragment;
+import ru.nailsoft.files.utils.ShareHelper;
 import ru.nailsoft.files.utils.Utils;
 
 import static ru.nailsoft.files.App.clipboard;
 import static ru.nailsoft.files.App.copy;
 import static ru.nailsoft.files.App.data;
 import static ru.nailsoft.files.diagnostics.Logger.trace;
+import static ru.nailsoft.files.toolkit.collections.Query.query;
 
 public class MainActivity extends BaseActivity
         implements
@@ -79,6 +89,7 @@ public class MainActivity extends BaseActivity
     @BindView(R.id.new_tab) ImageView newTab;
     @BindView(R.id.fab_background) View fabBackground;
 
+    private MenuItem menuOpen;
     private MenuItem menuCopy;
     private MenuItem menuCut;
     private MenuItem menuDelete;
@@ -193,6 +204,7 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main3, menu);
+        menuOpen = menu.findItem(R.id.open);
         menuCopy = menu.findItem(R.id.copy);
         menuCut = menu.findItem(R.id.cut);
         menuDelete = menu.findItem(R.id.delete);
@@ -210,8 +222,10 @@ public class MainActivity extends BaseActivity
     public void toggleActionMode(ActionMode mode) {
         if (mode == actionMode)
             return;
-        if (menuCopy == null)
+        if (menuOpen == null)
             return;
+        menuOpen.setVisible(mode != ActionMode.NONE);
+        menuOpen.setEnabled(mode == ActionMode.SINGLE);
         menuCopy.setVisible(mode != ActionMode.NONE);
         menuCut.setVisible(mode != ActionMode.NONE);
         menuDelete.setVisible(mode != ActionMode.NONE);
@@ -220,6 +234,7 @@ public class MainActivity extends BaseActivity
         menuShare.setVisible(mode != ActionMode.NONE);
         menuSearch.setVisible(mode == ActionMode.NONE);
         menuClose.setVisible(true);
+        path.setVisibility(mode == ActionMode.NONE ? View.VISIBLE : View.GONE);
         actionMode = mode;
     }
 
@@ -228,6 +243,9 @@ public class MainActivity extends BaseActivity
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.open:
+                onOpenAsClick();
+                return true;
             case R.id.copy:
                 onCopyClick();
                 return true;
@@ -265,6 +283,20 @@ public class MainActivity extends BaseActivity
     public void onNewTabClick() {
 //        data().newTab(currentTab().getPath());
         data().newTab(Environment.getExternalStorageDirectory());
+    }
+
+    private void onOpenAsClick() {
+        TabData tab = currentTab();
+
+        if (tab.selection.size() != 1)
+            return;
+        FileItem fileItem = tab.selection.iterator().next();
+
+        tab.selection.clear();
+        tab.onDataChanged();
+        toggleActionMode(ActionMode.NONE);
+
+        OpenAsDialogFragment.show(this, fileItem);
     }
 
     void onCopyClick() {
@@ -367,8 +399,12 @@ public class MainActivity extends BaseActivity
     }
 
     void onShareClick() {
-        throw new RuntimeException("not implemented");
-
+        TabData tab = currentTab();
+        ArrayList<FileItem> files = new ArrayList<>(tab.selection);
+        ShareHelper.share(this, files);
+        tab.selection.clear();
+        tab.onDataChanged();
+        toggleActionMode(ActionMode.NONE);
     }
 
     private void onCloseClick() {

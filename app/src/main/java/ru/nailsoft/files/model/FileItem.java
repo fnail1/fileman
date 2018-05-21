@@ -19,6 +19,7 @@ import ru.nailsoft.files.R;
 import ru.nailsoft.files.toolkit.io.FileUtils;
 
 import static ru.nailsoft.files.App.app;
+import static ru.nailsoft.files.diagnostics.Logger.trace;
 
 public final class FileItem implements Cloneable, Parcelable {
 
@@ -106,6 +107,7 @@ public final class FileItem implements Cloneable, Parcelable {
             mimeType = resolveMimeType(file, fileUri);
         }
         detailsResolved = true;
+//        trace("%s %s", name, mimeType);
     }
 
     private static String resolveMimeType(File file, Uri url) {
@@ -130,24 +132,24 @@ public final class FileItem implements Cloneable, Parcelable {
 //        return type;
     }
 
-    public void open(Context context) {
-        Uri uri = DocumentsContract.buildDocumentUri(context.getApplicationContext().getPackageName() + ".provider", file.getAbsolutePath());
-
-        if (mimeType == null)
-            mimeType = resolveMimeType(file, uri);
-
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
-        intent.setDataAndType(uri, mimeType);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        } else {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        }
-
-        context.startActivity(Intent.createChooser(intent, context.getString(R.string.open_file, name)));
-    }
+//    public void open(Context context) {
+//        Uri uri = DocumentsContract.buildDocumentUri(context.getApplicationContext().getPackageName() + ".provider", file.getAbsolutePath());
+//
+//        if (mimeType == null)
+//            mimeType = resolveMimeType(file, uri);
+//
+//        Intent intent = new Intent();
+//        intent.setAction(Intent.ACTION_VIEW);
+//        intent.setDataAndType(uri, mimeType);
+//        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+//        } else {
+//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+//        }
+//
+//        context.startActivity(Intent.createChooser(intent, context.getString(R.string.open_file, name)));
+//    }
 
     public CharSequence getSubtitle(Resources resx) {
         if (subtitle != null)

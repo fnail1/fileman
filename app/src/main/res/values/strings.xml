@@ -5,6 +5,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="open">Open</string>
     <string name="copy">Copy</string>
     <string name="cut">Cut</string>
     <string name="delete">Delete</string>
@@ -44,4 +45,13 @@
     <string name="explanation_permission">File manager is useless if not granted access to storage</string>
     <string name="moving_files">Moving files</string>
     <string name="unarchive_dialog_subtitle">Should we keep the source file?</string>
+    <string name="openAs">Open As</string>
+
+
+    <array name="open_type">
+        <item>Text</item>
+        <item>Image</item>
+        <item>Audio</item>
+        <item>Video</item>
+    </array>
 </resources>

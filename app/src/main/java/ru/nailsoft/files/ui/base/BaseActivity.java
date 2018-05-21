@@ -21,7 +21,7 @@ import ru.nailsoft.files.R;
 import static ru.nailsoft.files.App.prefs;
 import static ru.nailsoft.files.diagnostics.Logger.traceUi;
 
-public class BaseActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private boolean resumed;
 
@@ -151,14 +151,14 @@ public class BaseActivity extends AppCompatActivity {
 
     public Toolbar getToolbar() {
         if (mToolbar == null) {
-            mToolbar = (Toolbar) findViewById(R.id.toolbar);
+            mToolbar = findViewById(R.id.toolbar);
             if (mToolbar != null)
                 setSupportActionBar(mToolbar);
         }
         return mToolbar;
     }
 
-    private void onUpButtonClick(View view) {
+    protected void onUpButtonClick(View view) {
         final Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content);
         boolean handled = false;
         if (currentFragment != null && currentFragment instanceof FragmentInterface)

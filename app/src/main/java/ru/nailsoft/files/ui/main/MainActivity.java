@@ -99,6 +99,7 @@ public class MainActivity extends BaseActivity
     private ExclusiveExecutor2 filterExecutor = new ExclusiveExecutor2(0, ThreadPool.SCHEDULER, this::onFilterChanged);
     private String filter;
     private SearchView searchView;
+    private File searchRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,18 +182,32 @@ public class MainActivity extends BaseActivity
     public void onBackPressed() {
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (actionMode != ActionMode.NONE) {
+            return;
+        }
+
+        TabData tab = currentTab();
+        if (actionMode != ActionMode.NONE) {
             toggleActionMode(ActionMode.NONE);
-            TabData tab = currentTab();
             tab.selection.clear();
             tab.onDataChanged();
-        } else if (fabMenuOpen) {
-            closeFabMenu();
-        } else if (!searchView.isIconified()) {
-            searchView.setIconified(true);
-        } else if (!currentTab().navigateBack()) {
-            super.onBackPressed();
+            return;
         }
+
+        if (fabMenuOpen) {
+            closeFabMenu();
+            return;
+        }
+
+        if (!searchView.isIconified() && searchRoot == null || searchRoot.equals(tab.getPath())) {
+            searchView.setIconified(true);
+            return;
+        }
+
+        if (tab.navigateBack()) {
+            return;
+        }
+
+        super.onBackPressed();
     }
 
     @Override
@@ -650,6 +665,7 @@ public class MainActivity extends BaseActivity
     @Override
     public boolean onQueryTextChange(String newText) {
         filter = newText;
+        searchRoot = currentTab().getPath();
         filterExecutor.execute(false);
         return false;
     }

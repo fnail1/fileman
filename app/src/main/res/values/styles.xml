@@ -50,6 +50,18 @@
         <item name="android:editTextColor">@color/colorPrimary</item>
     </style>
 
+    <style name="SearchActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:minHeight">@dimen/action_bar_height</item>
+        <item name="titleTextAppearance">@style/TitleTextAppearance</item>
+        <item name="colorControlNormal">#ffffff</item>
+        <item name="colorAccent">#ffffffff</item>
+        <item name="popupTheme">@style/AppTheme.PopupOverlay</item>
+        <item name="titleTextColor">#ffffff</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="contentInsetLeft">0dp</item>
+        <item name="contentInsetRight">0dp</item>
+        <item name="titleMarginStart">0dp</item>
+    </style>
 
     <style name="EditTextAppearance">
         <item name="android:textColor">@color/colorPrimaryDark</item>

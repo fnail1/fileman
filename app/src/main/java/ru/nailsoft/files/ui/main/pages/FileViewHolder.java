@@ -41,7 +41,7 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     private final MasterInterface master;
     private FileItem file;
 
-    FileViewHolder(RecyclerView list, ViewGroup parent, @LayoutRes int viewType, MasterInterface master) {
+    protected FileViewHolder(RecyclerView list, ViewGroup parent, @LayoutRes int viewType, MasterInterface master) {
         super(LayoutInflater.from(list.getContext()).inflate(viewType, parent, false));
         this.master = master;
         ButterKnife.bind(this, itemView);

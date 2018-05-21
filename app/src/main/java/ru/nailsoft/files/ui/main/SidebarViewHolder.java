@@ -1,5 +1,6 @@
 package ru.nailsoft.files.ui.main;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,6 +17,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import ru.nailsoft.files.R;
 import ru.nailsoft.files.model.TabData;
+import ru.nailsoft.files.ui.search.SearchActivity;
 
 public class SidebarViewHolder implements NavigationView.OnNavigationItemSelectedListener, DrawerLayout.DrawerListener {
     private final MainActivity master;
@@ -54,6 +56,9 @@ public class SidebarViewHolder implements NavigationView.OnNavigationItemSelecte
         int id = item.getItemId();
 
         switch (id) {
+            case R.id.search:
+                master.startActivity(new Intent(master, SearchActivity.class));
+                break;
             case R.id.order_name:
                 setOrderCriteria(TabData.Order.NAME_ASC, TabData.Order.NAME_DESC);
                 break;

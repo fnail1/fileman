@@ -56,8 +56,14 @@ public class MyDocumentProvider extends DocumentsProvider {
         MatrixCursor cursor = new MatrixCursor(projection);
 
         for (TabData tab : data().tabs) {
+            TabData.AbsHistoryItem historyItem = tab.getPath();
+            if (!(historyItem instanceof TabData.DirectoryHistoryItem))
+                continue;
+
+            File path = ((TabData.DirectoryHistoryItem) historyItem).path;
+
             MatrixCursor.RowBuilder row = cursor.newRow();
-            row.add(DocumentsContract.Root.COLUMN_ROOT_ID, tab.getPath().getAbsolutePath());
+            row.add(DocumentsContract.Root.COLUMN_ROOT_ID, historyItem.id());
             row.add(DocumentsContract.Root.COLUMN_MIME_TYPES, "*/*");
             row.add(DocumentsContract.Root.COLUMN_FLAGS,
                     DocumentsContract.Root.FLAG_SUPPORTS_CREATE |
@@ -65,9 +71,9 @@ public class MyDocumentProvider extends DocumentsProvider {
                             DocumentsContract.Root.FLAG_SUPPORTS_SEARCH);
             row.add(DocumentsContract.Root.COLUMN_ICON, R.drawable.ic_folder);
             row.add(DocumentsContract.Root.COLUMN_TITLE, tab.title);
-            row.add(DocumentsContract.Root.COLUMN_SUMMARY, tab.getPath().getParent());
-            row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, tab.getPath().getAbsolutePath());
-            row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, tab.getPath().getFreeSpace());
+            row.add(DocumentsContract.Root.COLUMN_SUMMARY, path.getParent());
+            row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, path.getAbsolutePath());
+            row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, path.getFreeSpace());
 
         }
 
@@ -112,7 +118,7 @@ public class MyDocumentProvider extends DocumentsProvider {
 
         MatrixCursor cursor = new MatrixCursor(projection);
         for (TabData tab : data().tabs) {
-            if (tab.getPath().equals(new File(parentDocumentId))) {
+            if (tab.getPath().id().equals(parentDocumentId)) {
                 for (FileItem file : tab.getFiles(tabDataFriend)) {
                     MatrixCursor.RowBuilder row = cursor.newRow();
                     row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, file.file.getAbsolutePath());

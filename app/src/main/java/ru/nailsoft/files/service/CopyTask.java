@@ -51,8 +51,9 @@ public class CopyTask extends AbsTask {
         copy().onStart(this);
         setState(AbsTask.State.ANALIZE);
         ArrayList<CopyItem> queue = new ArrayList<>(src.size());
+        File dstPath = ((TabData.DirectoryHistoryItem) dst.getPath()).path;
         for (ClipboardItem file : src) {
-            listFiles(file, file.file.file, dst.getPath(), queue);
+            listFiles(file, file.file.file, dstPath, queue);
             setCurrentFile(file.file.file);
         }
 

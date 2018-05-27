@@ -30,12 +30,17 @@ import ru.nailsoft.files.utils.ShareHelper;
 import static ru.nailsoft.files.App.clipboard;
 import static ru.nailsoft.files.App.data;
 
-public class FilesFragment extends BaseFragment implements MainActivityData.TabDataChangeEventHandler, FileViewHolder.MasterInterface, MainActivityData.TabsChangeEventHandler, MainActivityData.SelectionChangeEventHandler, Clipboard.ClipboardEventHandler {
+public class FilesFragment extends BaseFragment implements
+        MainActivityData.TabDataChangeEventHandler,
+        FileViewHolder.MasterInterface,
+        MainActivityData.TabsChangeEventHandler,
+        MainActivityData.SelectionChangeEventHandler,
+        Clipboard.ClipboardEventHandler {
     public static final String ARG_PAGE_INDEX = "page_index";
 
     private int index;
     private TabData data;
-    private File displayedPath;
+    private String displayedPath;
 
     @BindView(R.id.list) RecyclerView list;
     Unbinder unbinder;
@@ -98,9 +103,9 @@ public class FilesFragment extends BaseFragment implements MainActivityData.TabD
 
         activity.runOnUiThread(() -> {
             list.getAdapter().notifyDataSetChanged();
-            if (!data.getPath().equals(displayedPath)) {
+            if (!data.getPath().id().equals(displayedPath)) {
                 restoreScroll();
-                displayedPath = data.getPath();
+                displayedPath = data.getPath().id();
             }
         });
     }

@@ -80,7 +80,11 @@ public class NewDirectoryDialog {
         if (name.isEmpty())
             return;
 
-        File file = new File(data.getPath(), name);
+        TabData.AbsHistoryItem path = data.getPath();
+        if (!(path instanceof TabData.DirectoryHistoryItem))
+            return;
+
+        File file = new File(((TabData.DirectoryHistoryItem) path).path, name);
         if (file.mkdirs()) {
             data.navigate(file);
             dialog.dismiss();

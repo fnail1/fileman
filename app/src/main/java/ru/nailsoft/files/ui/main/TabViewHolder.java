@@ -34,7 +34,7 @@ class TabViewHolder extends RecyclerView.ViewHolder implements View.OnClickListe
     public void bind(TabData tabData, boolean selected) {
         data = tabData;
         title.setText(tabData.title);
-        subtitle.setText(tabData.getPath().getParent());
+        subtitle.setText(tabData.getPath().subtitle());
 
         title.setSelected(selected);
         if(selected)

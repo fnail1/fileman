@@ -14,6 +14,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -99,7 +100,7 @@ public class MainActivity extends BaseActivity
     private ExclusiveExecutor2 filterExecutor = new ExclusiveExecutor2(0, ThreadPool.SCHEDULER, this::onFilterChanged);
     private String filter;
     private SearchView searchView;
-    private File searchRoot;
+    private TabData.AbsHistoryItem searchRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +148,13 @@ public class MainActivity extends BaseActivity
         tabs.scrollToPosition(position);
         onSelectionChanged(tab);
         sidebarViewHolder.onCurrentTabChanged(tab);
+        restoreSearchView(tab);
+    }
+
+    private void restoreSearchView(TabData tab) {
+        String filter = tab.getPath().getFilter();
+        searchView.setQuery(filter, false);
+        searchView.setIconified(TextUtils.isEmpty(filter));
     }
 
     @Override
@@ -198,7 +206,7 @@ public class MainActivity extends BaseActivity
             return;
         }
 
-        if (!searchView.isIconified() && searchRoot == null || searchRoot.equals(tab.getPath())) {
+        if (!searchView.isIconified() && (searchRoot == null || searchRoot.same(tab.getPath()))) {
             searchView.setIconified(true);
             return;
         }
@@ -294,7 +302,7 @@ public class MainActivity extends BaseActivity
     @OnClick(R.id.new_tab)
     public void onNewTabClick() {
 //        data().newTab(currentTab().getPath());
-        data().newTab(Environment.getExternalStorageDirectory());
+        data().newTab().navigate(Environment.getExternalStorageDirectory());
     }
 
     private void onOpenAsClick() {
@@ -407,7 +415,7 @@ public class MainActivity extends BaseActivity
         TabData tab = currentTab();
         ArrayList<FileItem> items = new ArrayList<>(tab.selection);
         EditText text = view.findViewById(R.id.text);
-        String n = items.size() == 1 ? items.get(0).name : tab.getPath().getName();
+        String n = items.size() == 1 ? items.get(0).name : tab.getPath().title();
         n = FileUtils.replaceExt(n, "zip");
         text.setText(n);
 
@@ -597,6 +605,7 @@ public class MainActivity extends BaseActivity
             return;
         runOnUiThread(() -> {
             rebuildPath(args);
+            restoreSearchView(args);
             fab.show();
         });
     }
@@ -607,23 +616,35 @@ public class MainActivity extends BaseActivity
 
     private void rebuildPath(TabData args) {
         path.removeAllViews();
-        File p = args.getPath();
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        do {
-            TextView textView = (TextView) inflater.inflate(R.layout.item_path_element, path, false);
-            textView.setText("/" + p.getName());
-            textView.setOnClickListener(this::onPathItemClick);
-            textView.setTag(p);
-            path.addView(textView, 0);
-            p = p.getParentFile();
-        } while (!p.getName().isEmpty());
+        TabData.AbsHistoryItem historyItem = args.getPath();
+        if (historyItem instanceof TabData.DirectoryHistoryItem) {
+            File p = ((TabData.DirectoryHistoryItem) historyItem).path;
+
+            do {
+                TextView textView = (TextView) inflater.inflate(R.layout.item_path_element, this.path, false);
+                textView.setText("/" + p.getName());
+                textView.setOnClickListener(this::onPathItemClick);
+                textView.setTag(p);
+                this.path.addView(textView, 0);
+                p = p.getParentFile();
+            } while (!p.getName().isEmpty());
+        } else if (historyItem instanceof TabData.SearchHistoryItem) {
+            TabData.SearchHistoryItem searchHistoryItem = (TabData.SearchHistoryItem) historyItem;
+            TextView textView = (TextView) inflater.inflate(R.layout.item_path_element, this.path, false);
+            textView.setText(searchHistoryItem.title());
+            this.path.addView(textView, 0);
+        }
 
         pathScroll.post(() -> pathScroll.fullScroll(HorizontalScrollView.FOCUS_RIGHT));
     }
 
     private void onPathItemClick(View view) {
-        currentTab().navigate(((File) view.getTag()));
+        File path = (File) view.getTag();
+        if (path == null)
+            return;
+        currentTab().navigate(path);
     }
 
     @Override

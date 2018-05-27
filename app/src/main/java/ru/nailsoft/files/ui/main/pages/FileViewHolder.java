@@ -52,7 +52,7 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
     public void bind(FileItem file) {
         this.file = file;
-        title.setText(file.name);
+        title.setText(file.title);
         icons().attach(icon, file)
                 .size(screenMetrics().icon)
                 .round(screenMetrics().iconRoundRadius, screenMetrics().iconRoundRadius)

@@ -485,4 +485,20 @@ public class FileUtils {
             return name.substring(0, ptidx) + ext;
         return name + ext;
     }
+
+    public static List<File> searchRecursive(File root, String filter) {
+        ArrayList<File> out = new ArrayList<>();
+        searchRecursive(root, filter.toLowerCase(), out);
+        return out;
+    }
+
+    private static void searchRecursive(File root, String filter, ArrayList<File> out) {
+        for (File file : root.listFiles()) {
+            if (file.getName().toLowerCase().contains(filter)) {
+                out.add(file);
+            }
+            if (file.isDirectory())
+                searchRecursive(file, filter, out);
+        }
+    }
 }

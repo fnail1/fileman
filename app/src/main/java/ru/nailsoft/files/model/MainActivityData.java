@@ -50,15 +50,14 @@ public class MainActivityData {
     private final FileInfoCache cache = new FileInfoCache();
 
     public MainActivityData() {
-        newTab(Environment.getExternalStorageDirectory());
+        newTab().navigate(Environment.getExternalStorageDirectory());
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     @UiThread
-    public TabData newTab(File path) {
+    public TabData newTab() {
         TabData tab = new TabData(this);
-        tab.history.push(new TabData.HistoryItem(path));
         _tabs.add(tab);
-        onTabPathChanged(tab);
         return tab;
     }
 
@@ -66,18 +65,18 @@ public class MainActivityData {
     public void onTabPathChanged(TabData tab) {
         updateTabNamesSync();
         tabsChanged.fire(tab);
-        List<FileItem> cached = cache.get(tab.getPath());
+        List<FileItem> cached = cache.get(tab.getPath().id());
         boolean fromCache = cached != null;
         if (fromCache) {
             tab.setFiles(cached);
         }
 
         ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(() -> {
-            List<FileItem> files = readFiles(tab);
+            List<FileItem> files = tab.getPath().readFiles();
 
             if ((cached == null || cached.isEmpty()) && !files.isEmpty()) {
-                cache.put(tab.getPath(), files);
-                ThreadPool.UI.post(() -> tab.setFiles(files));
+                cache.put(tab.getPath().id(), files);
+                tab.setFiles(files);
             }
 
             long t0 = SystemClock.elapsedRealtime();
@@ -93,37 +92,18 @@ public class MainActivityData {
                 }
             }
 
-            ThreadPool.UI.post(() -> tab.setFiles(files));
+            tab.setFiles(files);
         });
     }
 
-    private List<FileItem> readFiles(TabData tab) {
-        File path = tab.getPath();
-        File[] files = path.listFiles();
-        if (files != null) {
-            List<FileItem> out = query(files).select(FileItem::new).toList();
-
-            Collections.sort(out, (o1, o2) -> {
-                if (o1.directory == o2.directory)
-                    return o1.order.compareTo(o2.order);
-                if (o1.directory)
-                    return -1;
-                return 1;
-            });
-            return out;
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
     private void updateTabNamesSync() {
-        HashMap<File, ArrayList<TabData>> map = new HashMap<>();
+        HashMap<String, ArrayList<TabData>> map = new HashMap<>();
 
         for (TabData t : _tabs) {
-            ArrayList<TabData> l = map.get(t.getPath());
+            ArrayList<TabData> l = map.get(t.getPath().id());
             if (l == null) {
                 l = new ArrayList<>();
-                map.put(t.getPath(), l);
+                map.put(t.getPath().id(), l);
             }
             l.add(t);
         }
@@ -132,38 +112,13 @@ public class MainActivityData {
             if (l.size() > 1) {
                 for (int i = 0; i < l.size(); i++) {
                     TabData t = l.get(i);
-                    t.title = t.getPath().getName() + " (" + (i + 1) + ")";
+                    t.title = t.getPath().title() + " (" + (i + 1) + ")";
                 }
             } else {
                 TabData t = l.get(0);
-                t.title = t.getPath().getName();
+                t.title = t.getPath().title();
             }
         }
-    }
-
-    @UiThread
-    public void navigate(TabData tab, File path) {
-        tab.history.push(new TabData.HistoryItem(path));
-        onTabPathChanged(tab);
-    }
-
-    @UiThread
-    public boolean navigateUp(TabData tab) {
-        File parent = tab.getPath().getParentFile();
-        if (parent == null)
-            return false;
-
-        navigate(tab, parent);
-        return true;
-    }
-
-    @UiThread
-    public boolean navigateBack(TabData tab) {
-        if (tab.history.size() < 2)
-            return false;
-        tab.history.pop();
-        onTabPathChanged(tab);
-        return true;
     }
 
     @UiThread

@@ -52,7 +52,7 @@ public class ZipTask extends AbsTask {
         setCount(queue.size());
         setState(State.PROGRESS);
 
-        File zip = new File(dst.getPath(), name);
+        File zip = new File(((TabData.DirectoryHistoryItem) dst.getPath()).path, name);
 
         try {
             try (FileOutputStream dest = new FileOutputStream(zip)) {

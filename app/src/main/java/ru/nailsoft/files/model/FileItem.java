@@ -33,7 +33,8 @@ public final class FileItem implements Cloneable, Parcelable {
     public long size;
     public String mimeType;
     private String length = "";
-    CharSequence subtitle;
+    public CharSequence title;
+    public CharSequence subtitle;
     public boolean detailsResolved;
 
     public FileItem(File file) {
@@ -43,7 +44,7 @@ public final class FileItem implements Cloneable, Parcelable {
     private FileItem(File file, boolean isDirectory) {
         this.file = file;
         directory = isDirectory;
-        name = file.getName();
+        title = name = file.getName();
         hidden = name.charAt(0) == '.';
         order = (hidden ? name.substring(1) : name).toLowerCase();
         int idx = name.lastIndexOf('.');
@@ -59,7 +60,7 @@ public final class FileItem implements Cloneable, Parcelable {
         file = new File(in.readString());
         hidden = in.readByte() != 0;
         directory = in.readByte() != 0;
-        name = in.readString();
+        title = name = in.readString();
         ext = in.readString();
         order = in.readString();
         size = in.readLong();

@@ -152,9 +152,12 @@ public class MainActivity extends BaseActivity
     }
 
     private void restoreSearchView(TabData tab) {
-        String filter = tab.getPath().getFilter();
-        searchView.setQuery(filter, false);
-        searchView.setIconified(TextUtils.isEmpty(filter));
+        if (searchView != null) {
+            TabData.AbsHistoryItem historyItem = tab.getPath();
+            String filter = historyItem.getFilter();
+            searchView.setQuery(filter, false);
+            searchView.setIconified(TextUtils.isEmpty(filter) && !(historyItem instanceof TabData.SearchHistoryItem));
+        }
     }
 
     @Override
@@ -606,6 +609,7 @@ public class MainActivity extends BaseActivity
         runOnUiThread(() -> {
             rebuildPath(args);
             restoreSearchView(args);
+            tabs.getAdapter().notifyItemChanged(data().tabs.indexOf(args));
             fab.show();
         });
     }

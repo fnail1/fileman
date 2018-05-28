@@ -1,5 +1,6 @@
 package ru.nailsoft.files.model;
 
+import android.content.Context;
 import android.os.Environment;
 import android.os.SystemClock;
 import android.support.annotation.UiThread;
@@ -15,10 +16,13 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import ru.nailsoft.files.App;
+import ru.nailsoft.files.R;
 import ru.nailsoft.files.service.FileInfoCache;
 import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.toolkit.events.ObservableEvent;
 
+import static ru.nailsoft.files.App.app;
 import static ru.nailsoft.files.toolkit.collections.Query.query;
 
 @SuppressWarnings("WeakerAccess")
@@ -45,12 +49,14 @@ public class MainActivityData {
         }
     };
 
+    public final String searchTabSubtitlePrefix;
     private final LinkedList<TabData> _tabs = new LinkedList<>();
     public final List<TabData> tabs = Collections.unmodifiableList(_tabs);
     private final FileInfoCache cache = new FileInfoCache();
 
-    public MainActivityData() {
+    public MainActivityData(Context context) {
         newTab().navigate(Environment.getExternalStorageDirectory());
+        searchTabSubtitlePrefix = context.getString(R.string.search_tab_subtitle);
     }
 
     @SuppressWarnings("UnusedReturnValue")

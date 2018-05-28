@@ -37,8 +37,9 @@ class TabViewHolder extends RecyclerView.ViewHolder implements View.OnClickListe
         subtitle.setText(tabData.getPath().subtitle());
 
         title.setSelected(selected);
-        if(selected)
-            title.requestFocus();
+        //из-за этого строка поиска теряет фокус
+//        if(selected)
+//            title.requestFocus();
     }
 
     @Override

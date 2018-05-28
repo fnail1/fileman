@@ -57,7 +57,7 @@ public class App extends Application {
         super.onCreate();
         preferences = new Preferences(this);
         clipboard = new Clipboard();
-        data = new MainActivityData();
+        data = new MainActivityData(this);
         stateObserver = new AppStateObserver();
         screenMetrics = new ScreenMetrics(this);
         icons = new IconsManager(this, stateObserver, screenMetrics);

@@ -48,6 +48,7 @@
     <string name="moving_files">Moving files</string>
     <string name="unarchive_dialog_subtitle">Should we keep the source file?</string>
     <string name="compress_files">Compress file(s)</string>
+    <string name="search_tab_subtitle">Search:</string>
 
 
     <array name="open_type">

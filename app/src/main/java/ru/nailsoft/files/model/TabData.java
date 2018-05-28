@@ -19,10 +19,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
+import ru.nailsoft.files.R;
 import ru.nailsoft.files.service.MyDocumentProvider;
 import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.toolkit.io.FileUtils;
 
+import static ru.nailsoft.files.App.app;
 import static ru.nailsoft.files.diagnostics.DebugUtils.safeThrow;
 import static ru.nailsoft.files.toolkit.collections.Query.query;
 
@@ -44,12 +46,16 @@ public class TabData {
     }
 
     public void search(File root) {
-        history.push(new SearchHistoryItem(root));
+        SearchHistoryItem item = new SearchHistoryItem(root);
+        history.push(item);
         data.onTabPathChanged(this);
     }
 
     public void navigate(File path) {
-        history.push(new DirectoryHistoryItem(path));
+        DirectoryHistoryItem item = new DirectoryHistoryItem(path);
+        if (history.size() > 0)
+            getPath().onNavigateTo(item);
+        history.push(item);
         data.onTabPathChanged(this);
     }
 
@@ -218,6 +224,8 @@ public class TabData {
         public String getFilter() {
             return filter;
         }
+
+        public abstract void onNavigateTo(AbsHistoryItem next);
     }
 
     public static class DirectoryHistoryItem extends AbsHistoryItem {
@@ -293,6 +301,11 @@ public class TabData {
 
             return filtered;
         }
+
+        @Override
+        public void onNavigateTo(AbsHistoryItem next) {
+            next.filter = filter;
+        }
     }
 
     public class SearchHistoryItem extends AbsHistoryItem {
@@ -305,12 +318,14 @@ public class TabData {
 
         @Override
         public String title() {
-            return null;
+            return root.getName();
         }
 
         @Override
         public String subtitle() {
-            return null;
+            if (TextUtils.isEmpty(filter))
+                return data.searchTabSubtitlePrefix;
+            return data.searchTabSubtitlePrefix + filter;
         }
 
         @NonNull
@@ -348,6 +363,13 @@ public class TabData {
 
             return out;
         }
+
+        @Override
+        public void onNavigateTo(AbsHistoryItem next) {
+
+        }
+
+
     }
 
 

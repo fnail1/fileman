@@ -450,16 +450,20 @@ public class MainActivity extends BaseActivity
             searchView.setIconified(true);
         } else {
             int currentItem = pages.getCurrentItem();
+            TabData tab = data().tabs.get(currentItem);
             if (currentItem == 0) {
                 if (data().tabs.size() == 1) {
-                    finish();
-                } else {
-                    data().closeTab(data().tabs.get(currentItem));
+                    if (!(tab.getPath() instanceof TabData.SearchHistoryItem)) {
+                        finish();
+                        return;
+                    } else {
+                        data().newTab().navigate(tab.getPath().anchor());
+                    }
                 }
             } else {
                 pages.setCurrentItem(currentItem - 1);
-                data().closeTab(data().tabs.get(currentItem));
             }
+            data().closeTab(tab);
         }
     }
 

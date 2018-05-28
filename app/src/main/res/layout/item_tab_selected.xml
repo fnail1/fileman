@@ -22,7 +22,7 @@
         android:maxWidth="200dp"
         android:singleLine="true"
         android:textAppearance="@style/FileInfoTextAppearance"
-        android:textSize="4pt"
+        android:textSize="6pt"
         tools:text="ka;lsjh ksaKJDFASHdkufahsaklsjdhfakls sdjSJDHFALSK JDL AJFL JDFHlasdjhf"
         />
 
@@ -37,5 +37,6 @@
         android:focusableInTouchMode="true"
         android:marqueeRepeatLimit="marquee_forever"
         android:freezesText="true"
+        android:singleLine="true"
         tools:text="klasdjhf"/>
 </LinearLayout>

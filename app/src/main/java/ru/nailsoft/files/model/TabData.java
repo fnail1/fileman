@@ -1,17 +1,9 @@
 package ru.nailsoft.files.model;
 
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.TextUtils;
-import android.text.style.StyleSpan;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,21 +11,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Stack;
 
-import ru.nailsoft.files.R;
 import ru.nailsoft.files.service.MyDocumentProvider;
 import ru.nailsoft.files.toolkit.ThreadPool;
-import ru.nailsoft.files.toolkit.io.FileUtils;
 
-import static ru.nailsoft.files.App.app;
 import static ru.nailsoft.files.diagnostics.DebugUtils.safeThrow;
 import static ru.nailsoft.files.toolkit.collections.Query.query;
 
 public class TabData {
-    private final MainActivityData data;
-    final Stack<AbsHistoryItem> history = new Stack<>();
+    final MainActivityData data;
+    private final Stack<AbsHistoryItem> history = new Stack<>();
     private List<FileItem> files = Collections.emptyList();
     public final HashSet<FileItem> selection = new HashSet<>();
-    public String title;
+//    public String title;
     public List<FileItem> displayFiles = Collections.emptyList();
     private Order order = Order.NAME_ASC;
 
@@ -46,7 +35,7 @@ public class TabData {
     }
 
     public void search(File root) {
-        SearchHistoryItem item = new SearchHistoryItem(root);
+        SearchHistoryItem item = new SearchHistoryItem(this, root);
         history.push(item);
         data.onTabPathChanged(this);
     }
@@ -101,45 +90,12 @@ public class TabData {
 
         List<FileItem> filtered = getPath().applyFilter(files);
 
-        Collections.sort(filtered, order.comarator());
+        Collections.sort(filtered, order.comparator());
 
         ThreadPool.UI.post(() -> {
             displayFiles = filtered;
             data.onTabDataChanged(this);
         });
-    }
-
-    @NonNull
-    private static FileItem createDisplayFileItem(FileItem file, String name, int i, int length) {
-        FileItem clone = file.clone();
-        clone.title = clone.name;
-        clone.subtitle = highlighFilteredName(name, i, length);
-        return clone;
-    }
-
-    @NonNull
-    private static SpannableStringBuilder highlighFilteredName(String name, int i, int length) {
-        SpannableStringBuilder str = new SpannableStringBuilder(name);
-        str.setSpan(new StyleSpan(android.graphics.Typeface.BOLD), i, i + length, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        return str;
-    }
-
-    private static String searchRecursive(File file, String filter) {
-
-        for (String s : file.list()) {
-            if (s.toLowerCase().contains(filter))
-                return s;
-        }
-
-        for (File child : file.listFiles()) {
-            if (child.isDirectory()) {
-                String s = searchRecursive(child, filter);
-                if (s != null)
-                    return s;
-            }
-        }
-
-        return null;
     }
 
     public void onRename(FileItem fileItem, File newFile) {
@@ -178,7 +134,7 @@ public class TabData {
         history.peek().linearLayoutManagerSavedState = linearLayoutManagerSavedState;
     }
 
-    public List<FileItem> getFiles(MyDocumentProvider.TabDataFriend friend) {
+    public List<FileItem> getFiles(@SuppressWarnings("unused") MyDocumentProvider.TabDataFriend friend) {
         return files;
     }
 
@@ -199,184 +155,10 @@ public class TabData {
         return order;
     }
 
-    public static abstract class AbsHistoryItem {
-        protected String filter = "";
-
-        Parcelable linearLayoutManagerSavedState;
-
-        public abstract String title();
-
-        public abstract String subtitle();
-
-        @NonNull
-        public abstract String id();
-
-        public boolean same(AbsHistoryItem other) {
-            return id().equals(other.id());
-        }
-
-        public abstract List<FileItem> readFiles();
-
-        public abstract File anchor();
-
-        public abstract List<FileItem> applyFilter(List<FileItem> files);
-
-        public String getFilter() {
-            return filter;
-        }
-
-        public abstract void onNavigateTo(AbsHistoryItem next);
-    }
-
-    public static class DirectoryHistoryItem extends AbsHistoryItem {
-        public final File path;
-
-
-        DirectoryHistoryItem(@NonNull File path) {
-            this.path = path;
-        }
-
-        @Override
-        public String title() {
-            return path.getName();
-        }
-
-        @Override
-        public String subtitle() {
-            return path.getParent();
-        }
-
-        @Override
-        @NonNull
-        public String id() {
-            return "dir:" + path.getAbsolutePath();
-        }
-
-        @Override
-        public List<FileItem> readFiles() {
-            File[] files = path.listFiles();
-            if (files != null) {
-                List<FileItem> out = query(files).select(FileItem::new).toList();
-
-                return out;
-            } else {
-                return Collections.emptyList();
-            }
-        }
-
-        @Override
-        public File anchor() {
-            return path;
-        }
-
-        @Override
-        public List<FileItem> applyFilter(List<FileItem> files) {
-            String filter = this.filter.toLowerCase();
-
-            if (TextUtils.isEmpty(filter))
-                return files;
-
-            ArrayList<FileItem> filtered = new ArrayList<>(files.size());
-
-
-            for (FileItem file : files) {
-                String name = file.name;
-                int i = name.toLowerCase().indexOf(filter);
-                if (i >= 0) {
-                    FileItem clone = createDisplayFileItem(file, name, i, filter.length());
-                    filtered.add(clone);
-                    continue;
-                }
-
-
-                if (file.file.isDirectory()) {
-                    name = searchRecursive(file.file, filter);
-                    if (name != null) {
-                        i = name.toLowerCase().indexOf(filter);
-                        FileItem clone = createDisplayFileItem(file, name, i, filter.length());
-                        filtered.add(clone);
-                    }
-                }
-            }
-
-            return filtered;
-        }
-
-        @Override
-        public void onNavigateTo(AbsHistoryItem next) {
-            next.filter = filter;
-        }
-    }
-
-    public class SearchHistoryItem extends AbsHistoryItem {
-
-        public final File root;
-
-        public SearchHistoryItem(File root) {
-            this.root = root;
-        }
-
-        @Override
-        public String title() {
-            return root.getName();
-        }
-
-        @Override
-        public String subtitle() {
-            if (TextUtils.isEmpty(filter))
-                return data.searchTabSubtitlePrefix;
-            return data.searchTabSubtitlePrefix + filter;
-        }
-
-        @NonNull
-        @Override
-        public String id() {
-            return "search:" + root.getAbsolutePath();
-        }
-
-        @Override
-        public List<FileItem> readFiles() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public File anchor() {
-            return root;
-        }
-
-        @Override
-        public List<FileItem> applyFilter(List<FileItem> files) {
-            List<File> found = null;
-            String filter = this.filter.toLowerCase();
-
-            if (!TextUtils.isEmpty(filter))
-                found = FileUtils.searchRecursive(root, filter);
-
-            if (found == null)
-                return Collections.emptyList();
-
-            List<FileItem> out = query(found).select(FileItem::new).toList();
-            for (FileItem fileItem : out) {
-                fileItem.resolveDetails();
-                fileItem.title = highlighFilteredName(fileItem.name, fileItem.name.toLowerCase().indexOf(filter), filter.length());
-            }
-
-            return out;
-        }
-
-        @Override
-        public void onNavigateTo(AbsHistoryItem next) {
-
-        }
-
-
-    }
-
-
     public enum Order {
         NAME_ASC {
             @Override
-            public Comparator<FileItem> comarator() {
+            public Comparator<FileItem> comparator() {
                 return (o1, o2) -> {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
@@ -387,7 +169,7 @@ public class TabData {
         },
         NAME_DESC {
             @Override
-            public Comparator<FileItem> comarator() {
+            public Comparator<FileItem> comparator() {
                 return (o1, o2) -> {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
@@ -398,7 +180,7 @@ public class TabData {
         },
         SIZE_ASC {
             @Override
-            public Comparator<FileItem> comarator() {
+            public Comparator<FileItem> comparator() {
                 return (o1, o2) -> {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
@@ -409,7 +191,7 @@ public class TabData {
         },
         SIZE_DESC {
             @Override
-            public Comparator<FileItem> comarator() {
+            public Comparator<FileItem> comparator() {
                 return (o1, o2) -> {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
@@ -420,7 +202,7 @@ public class TabData {
         },
         MOFIFIED_ASC {
             @Override
-            public Comparator<FileItem> comarator() {
+            public Comparator<FileItem> comparator() {
                 return (o1, o2) -> {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
@@ -431,7 +213,7 @@ public class TabData {
         },
         MOFIFIED_DESC {
             @Override
-            public Comparator<FileItem> comarator() {
+            public Comparator<FileItem> comparator() {
                 return (o1, o2) -> {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
@@ -441,7 +223,7 @@ public class TabData {
             }
         };
 
-        public abstract Comparator<FileItem> comarator();
+        public abstract Comparator<FileItem> comparator();
 
     }
 }

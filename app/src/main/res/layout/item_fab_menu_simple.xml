@@ -16,7 +16,7 @@
         android:layout_height="@dimen/menu_icon_size"
         android:contentDescription="@string/icon"
         android:padding="4dp"
-        app:srcCompat="@drawable/ic_folder"/>
+        app:srcCompat="@drawable/ic_file"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -33,7 +33,8 @@
             android:paddingRight="4dp"
             android:paddingStart="4dp"
             android:paddingTop="4dp"
-
+            android:singleLine="true"
+            android:ellipsize="end"
             android:textAppearance="@style/FabMenuTitleTextAppearance"
             tools:text=" a;skfjas kdjfsald"/>
 
@@ -46,7 +47,8 @@
             android:paddingLeft="4dp"
             android:paddingRight="4dp"
             android:paddingStart="4dp"
-
+            android:singleLine="true"
+            android:ellipsize="start"
             android:textAppearance="@style/FabMenuSubtitleTextAppearance"
             tools:text="aksjdfhaskdjfaskjdfaskdjfsakd"/>
 

@@ -58,6 +58,7 @@ public class SidebarViewHolder implements NavigationView.OnNavigationItemSelecte
         switch (id) {
             case R.id.search:
                 data().newTab().search(master.currentTab().getPath().anchor());
+                master.pages.setCurrentItem(data().tabs.size() - 1);
                 break;
             case R.id.order_name:
                 setOrderCriteria(TabData.Order.NAME_ASC, TabData.Order.NAME_DESC);

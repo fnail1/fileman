@@ -74,8 +74,6 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
                 return new SimpleItemViewHolder(parent);
             case R.layout.item_fab_menu_separator:
                 return new ItemViewHolder(inflater.inflate(viewType, parent, false));
-            case R.layout.item_fab_menu_expandable:
-                return new ExpandableItemViewHolder(parent);
         }
         throw new IllegalArgumentException(" " + viewType);
     }
@@ -146,32 +144,6 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         }
     }
 
-    protected class ExpandableItemViewHolder extends SimpleItemViewHolder
-            implements View.OnClickListener {
-        private ExpandableItem item;
-
-        @BindView(R.id.expand)
-        ImageView expand;
-
-
-        ExpandableItemViewHolder(ViewGroup parent) {
-            super(inflater.inflate(R.layout.item_fab_menu_expandable, parent, false));
-        }
-
-        @Override
-        public void bind(Item item) {
-            super.bind(item);
-        }
-
-        @Override
-        public void onClick(View v) {
-            if (v == expand)
-                item.onExpand();
-            else
-                super.onClick(v);
-        }
-    }
-
     public static abstract class Item {
         MasterInterface callback;
 
@@ -225,7 +197,7 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         protected final ClipboardItem file;
 
         public FileItem(ClipboardItem file) {
-            super(file.file.name, file.file.file.getAbsolutePath());
+            super(file.file.name, file.file.file.getParent());
             this.file = file;
         }
 
@@ -241,55 +213,6 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
             callback.paste(file);
         }
     }
-
-    public static abstract class ExpandableItem extends SimpleItem {
-
-
-        ExpandableItem(String title, String subtitle) {
-            super(title, subtitle);
-        }
-
-        @Override
-        public int viewType() {
-            return R.layout.item_fab_menu_expandable;
-        }
-
-
-        public abstract void onExpand();
-    }
-
-    public static class DirectoryItem extends ExpandableItem {
-
-        private final ClipboardItem file;
-
-        DirectoryItem(ClipboardItem file) {
-            super(file.file.name, file.file.file.getAbsolutePath());
-
-            this.file = file;
-        }
-
-        public ClipboardItem getFile() {
-            return file;
-        }
-
-        @Override
-        public void bindIcon(ImageView imageView) {
-            icons().attach(imageView, file.file)
-                    .size(screenMetrics().menuIcon)
-                    .commit();
-        }
-
-        @Override
-        public void onClick() {
-            callback.paste(file);
-        }
-
-        @Override
-        public void onExpand() {
-            callback.expandBufferedDirectoryExpand(file);
-        }
-    }
-
 
     public static abstract class CommonItem extends SimpleItem {
 
@@ -356,8 +279,6 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         void selectAll();
 
         void createNewDirectory();
-
-        void expandBufferedDirectoryExpand(ClipboardItem file);
 
         void closeFabMenu();
 

@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -15,8 +14,9 @@ import android.widget.Toast;
 import java.io.File;
 
 import ru.nailsoft.files.R;
+import ru.nailsoft.files.model.AbsHistoryItem;
+import ru.nailsoft.files.model.DirectoryHistoryItem;
 import ru.nailsoft.files.model.TabData;
-import ru.nailsoft.files.utils.Utils;
 
 public class NewDirectoryDialog {
 
@@ -80,11 +80,11 @@ public class NewDirectoryDialog {
         if (name.isEmpty())
             return;
 
-        TabData.AbsHistoryItem path = data.getPath();
-        if (!(path instanceof TabData.DirectoryHistoryItem))
+        AbsHistoryItem path = data.getPath();
+        if (!(path instanceof DirectoryHistoryItem))
             return;
 
-        File file = new File(((TabData.DirectoryHistoryItem) path).path, name);
+        File file = new File(((DirectoryHistoryItem) path).path, name);
         if (file.mkdirs()) {
             data.navigate(file);
             dialog.dismiss();

@@ -23,7 +23,7 @@ class TabViewHolder extends RecyclerView.ViewHolder implements View.OnClickListe
     private final MasterInterface master;
     private TabData data;
 
-    public TabViewHolder(RecyclerView list, ViewGroup parent, @LayoutRes int layoutResId, MasterInterface master) {
+    TabViewHolder(RecyclerView list, ViewGroup parent, @LayoutRes int layoutResId, MasterInterface master) {
         super(LayoutInflater.from(list.getContext()).inflate(layoutResId, parent, false));
         this.master = master;
 
@@ -33,7 +33,7 @@ class TabViewHolder extends RecyclerView.ViewHolder implements View.OnClickListe
 
     public void bind(TabData tabData, boolean selected) {
         data = tabData;
-        title.setText(tabData.title);
+        title.setText(tabData.getPath().title());
         subtitle.setText(tabData.getPath().subtitle());
 
         title.setSelected(selected);

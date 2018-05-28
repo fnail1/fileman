@@ -103,28 +103,28 @@ public class MainActivityData {
     }
 
     private void updateTabNamesSync() {
-        HashMap<String, ArrayList<TabData>> map = new HashMap<>();
-
-        for (TabData t : _tabs) {
-            ArrayList<TabData> l = map.get(t.getPath().id());
-            if (l == null) {
-                l = new ArrayList<>();
-                map.put(t.getPath().id(), l);
-            }
-            l.add(t);
-        }
-
-        for (ArrayList<TabData> l : map.values()) {
-            if (l.size() > 1) {
-                for (int i = 0; i < l.size(); i++) {
-                    TabData t = l.get(i);
-                    t.title = t.getPath().title() + " (" + (i + 1) + ")";
-                }
-            } else {
-                TabData t = l.get(0);
-                t.title = t.getPath().title();
-            }
-        }
+//        HashMap<String, ArrayList<TabData>> map = new HashMap<>();
+//
+//        for (TabData t : _tabs) {
+//            ArrayList<TabData> l = map.get(t.getPath().id());
+//            if (l == null) {
+//                l = new ArrayList<>();
+//                map.put(t.getPath().id(), l);
+//            }
+//            l.add(t);
+//        }
+//
+//        for (ArrayList<TabData> l : map.values()) {
+//            if (l.size() > 1) {
+//                for (int i = 0; i < l.size(); i++) {
+//                    TabData t = l.get(i);
+//                    t.title = t.getPath().title() + " (" + (i + 1) + ")";
+//                }
+//            } else {
+//                TabData t = l.get(0);
+//                t.title = t.getPath().title();
+//            }
+//        }
     }
 
     @UiThread

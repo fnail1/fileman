@@ -3,7 +3,6 @@ package ru.nailsoft.files.service;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.os.CancellationSignal;
-import android.os.Handler;
 import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.DocumentsProvider;
@@ -14,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import ru.nailsoft.files.R;
+import ru.nailsoft.files.model.AbsHistoryItem;
+import ru.nailsoft.files.model.DirectoryHistoryItem;
 import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.toolkit.ThreadPool;
@@ -56,11 +57,11 @@ public class MyDocumentProvider extends DocumentsProvider {
         MatrixCursor cursor = new MatrixCursor(projection);
 
         for (TabData tab : data().tabs) {
-            TabData.AbsHistoryItem historyItem = tab.getPath();
-            if (!(historyItem instanceof TabData.DirectoryHistoryItem))
+            AbsHistoryItem historyItem = tab.getPath();
+            if (!(historyItem instanceof DirectoryHistoryItem))
                 continue;
 
-            File path = ((TabData.DirectoryHistoryItem) historyItem).path;
+            File path = ((DirectoryHistoryItem) historyItem).path;
 
             MatrixCursor.RowBuilder row = cursor.newRow();
             row.add(DocumentsContract.Root.COLUMN_ROOT_ID, historyItem.id());
@@ -70,7 +71,7 @@ public class MyDocumentProvider extends DocumentsProvider {
                             DocumentsContract.Root.FLAG_SUPPORTS_RECENTS |
                             DocumentsContract.Root.FLAG_SUPPORTS_SEARCH);
             row.add(DocumentsContract.Root.COLUMN_ICON, R.drawable.ic_folder);
-            row.add(DocumentsContract.Root.COLUMN_TITLE, tab.title);
+            row.add(DocumentsContract.Root.COLUMN_TITLE, tab.getPath().title());
             row.add(DocumentsContract.Root.COLUMN_SUMMARY, path.getParent());
             row.add(DocumentsContract.Root.COLUMN_DOCUMENT_ID, path.getAbsolutePath());
             row.add(DocumentsContract.Root.COLUMN_AVAILABLE_BYTES, path.getFreeSpace());

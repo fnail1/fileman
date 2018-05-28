@@ -22,7 +22,7 @@
         android:maxWidth="200dp"
         android:singleLine="true"
         android:textAppearance="@style/HiddenFileNameTextAppearance"
-        android:textSize="4pt"
+        android:textSize="6pt"
         tools:text="ka;lsjh ksaKJDFASHdkufahsaklsjdhfakls sdjSJDHFALSK JDL AJFL JDFHlasdjhf"
         />
 
@@ -32,6 +32,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxWidth="200dp"
+        android:singleLine="true"
         android:textAppearance="@style/HiddenDirectoryNameTextAppearance"
         tools:text="klasdjhf"/>
 </LinearLayout>

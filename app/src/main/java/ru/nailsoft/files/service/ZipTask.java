@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import ru.nailsoft.files.model.DirectoryHistoryItem;
 import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.model.TabData;
 
@@ -52,7 +53,7 @@ public class ZipTask extends AbsTask {
         setCount(queue.size());
         setState(State.PROGRESS);
 
-        File zip = new File(((TabData.DirectoryHistoryItem) dst.getPath()).path, name);
+        File zip = new File(((DirectoryHistoryItem) dst.getPath()).path, name);
 
         try {
             try (FileOutputStream dest = new FileOutputStream(zip)) {
@@ -98,7 +99,7 @@ public class ZipTask extends AbsTask {
         public final File root;
         public final File path;
 
-        public TaskItem(File root, File path) {
+        TaskItem(File root, File path) {
             this.root = root;
             this.path = path;
         }

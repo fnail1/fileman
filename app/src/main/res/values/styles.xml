@@ -128,14 +128,14 @@
 
     <style name="FabMenuTitleTextAppearance">
         <item name="android:textColor">@color/colorPrimary</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
     </style>
 
     <style name="FabMenuSubtitleTextAppearance">
         <item name="android:textColor">@color/colorPrimary</item>
-        <item name="android:textSize">6sp</item>
+        <item name="android:textSize">8sp</item>
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textStyle">normal</item>
     </style>

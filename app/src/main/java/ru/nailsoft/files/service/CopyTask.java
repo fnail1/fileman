@@ -11,11 +11,13 @@ import java.util.Collection;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import ru.nailsoft.files.model.DirectoryHistoryItem;
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.toolkit.io.FileOpException;
 import ru.nailsoft.files.toolkit.io.FileUtils;
 
 import static ru.nailsoft.files.App.copy;
+import static ru.nailsoft.files.diagnostics.DebugUtils.safeThrow;
 
 public class CopyTask extends AbsTask {
 
@@ -51,7 +53,7 @@ public class CopyTask extends AbsTask {
         copy().onStart(this);
         setState(AbsTask.State.ANALIZE);
         ArrayList<CopyItem> queue = new ArrayList<>(src.size());
-        File dstPath = ((TabData.DirectoryHistoryItem) dst.getPath()).path;
+        File dstPath = ((DirectoryHistoryItem) dst.getPath()).path;
         for (ClipboardItem file : src) {
             listFiles(file, file.file.file, dstPath, queue);
             setCurrentFile(file.file.file);
@@ -158,8 +160,6 @@ public class CopyTask extends AbsTask {
                     if (clipboardItem.file.file == src) {
                         task.dst.onPaste(out);
                     }
-                } catch (FileOpException e) {
-                    throw e;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -235,7 +235,9 @@ public class CopyTask extends AbsTask {
         void finalize(CopyTask task) {
             super.finalize(task);
             if (clipboardItem.removeSource)
-                src.delete();
+                if (!src.delete()) {
+                    safeThrow(new FileOpException(FileOpException.FileOp.DELETE, src));
+                }
         }
     }
 

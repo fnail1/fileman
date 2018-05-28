@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -37,12 +38,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import ru.nailsoft.files.R;
+import ru.nailsoft.files.model.AbsHistoryItem;
+import ru.nailsoft.files.model.DirectoryHistoryItem;
 import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.model.MainActivityData;
+import ru.nailsoft.files.model.SearchHistoryItem;
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.service.Clipboard;
 import ru.nailsoft.files.service.ClipboardItem;
-import ru.nailsoft.files.service.CopyService;
 import ru.nailsoft.files.service.CopyTask;
 import ru.nailsoft.files.service.ZipTask;
 import ru.nailsoft.files.toolkit.ThreadPool;
@@ -100,7 +103,7 @@ public class MainActivity extends BaseActivity
     private ExclusiveExecutor2 filterExecutor = new ExclusiveExecutor2(0, ThreadPool.SCHEDULER, this::onFilterChanged);
     private String filter;
     private SearchView searchView;
-    private TabData.AbsHistoryItem searchRoot;
+    private AbsHistoryItem searchRoot;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -153,10 +156,10 @@ public class MainActivity extends BaseActivity
 
     private void restoreSearchView(TabData tab) {
         if (searchView != null) {
-            TabData.AbsHistoryItem historyItem = tab.getPath();
+            AbsHistoryItem historyItem = tab.getPath();
             String filter = historyItem.getFilter();
             searchView.setQuery(filter, false);
-            searchView.setIconified(TextUtils.isEmpty(filter) && !(historyItem instanceof TabData.SearchHistoryItem));
+            searchView.setIconified(TextUtils.isEmpty(filter) && !(historyItem instanceof SearchHistoryItem));
         }
     }
 
@@ -306,6 +309,7 @@ public class MainActivity extends BaseActivity
     public void onNewTabClick() {
 //        data().newTab(currentTab().getPath());
         data().newTab().navigate(Environment.getExternalStorageDirectory());
+        pages.setCurrentItem(data().tabs.size() - 1);
     }
 
     private void onOpenAsClick() {
@@ -453,7 +457,7 @@ public class MainActivity extends BaseActivity
             TabData tab = data().tabs.get(currentItem);
             if (currentItem == 0) {
                 if (data().tabs.size() == 1) {
-                    if (!(tab.getPath() instanceof TabData.SearchHistoryItem)) {
+                    if (!(tab.getPath() instanceof SearchHistoryItem)) {
                         finish();
                         return;
                     } else {
@@ -538,11 +542,6 @@ public class MainActivity extends BaseActivity
     }
 
     @Override
-    public void expandBufferedDirectoryExpand(ClipboardItem file) {
-
-    }
-
-    @Override
     public void pasteAll() {
         CopyTask task = new CopyTask(clipboard().values(), currentTab());
         copy().enqueue(task);
@@ -580,15 +579,10 @@ public class MainActivity extends BaseActivity
 
             fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
             for (ClipboardItem fileItem : clipboard().values()) {
-                if (fileItem.file.directory)
-                    fabMenuItems.add(new FabMenuAdapter.DirectoryItem(fileItem));
-                else
-                    fabMenuItems.add(new FabMenuAdapter.FileItem(fileItem));
+                fabMenuItems.add(new FabMenuAdapter.FileItem(fileItem));
             }
         }
 
-//        fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
-//        fabMenuItems.add(new FabMenuAdapter.CloseItem(this));
         fabMenuAdapter.setItems(fabMenuItems);
 
         if (scrollToEnd)
@@ -597,13 +591,11 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void onTabsChanged(TabData args) {
-        pages.getAdapter().notifyDataSetChanged();
-        tabs.getAdapter().notifyDataSetChanged();
-        if (args != null) {
-            pages.setCurrentItem(data().tabs.indexOf(args));
-            onSelectionChanged(args);
+        PagerAdapter adapter = pages.getAdapter();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+            tabs.getAdapter().notifyDataSetChanged();
         }
-
     }
 
     @Override
@@ -622,13 +614,14 @@ public class MainActivity extends BaseActivity
         rebuildPath(currentTab());
     }
 
+    @SuppressLint("SetTextI18n")
     private void rebuildPath(TabData args) {
         path.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(this);
 
-        TabData.AbsHistoryItem historyItem = args.getPath();
-        if (historyItem instanceof TabData.DirectoryHistoryItem) {
-            File p = ((TabData.DirectoryHistoryItem) historyItem).path;
+        AbsHistoryItem historyItem = args.getPath();
+        if (historyItem instanceof DirectoryHistoryItem) {
+            File p = ((DirectoryHistoryItem) historyItem).path;
 
             do {
                 TextView textView = (TextView) inflater.inflate(R.layout.item_path_element, this.path, false);
@@ -638,8 +631,8 @@ public class MainActivity extends BaseActivity
                 this.path.addView(textView, 0);
                 p = p.getParentFile();
             } while (!p.getName().isEmpty());
-        } else if (historyItem instanceof TabData.SearchHistoryItem) {
-            TabData.SearchHistoryItem searchHistoryItem = (TabData.SearchHistoryItem) historyItem;
+        } else if (historyItem instanceof SearchHistoryItem) {
+            SearchHistoryItem searchHistoryItem = (SearchHistoryItem) historyItem;
             TextView textView = (TextView) inflater.inflate(R.layout.item_path_element, this.path, false);
             textView.setText(searchHistoryItem.title());
             this.path.addView(textView, 0);

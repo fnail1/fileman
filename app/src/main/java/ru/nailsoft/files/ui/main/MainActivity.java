@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -78,13 +79,15 @@ public class MainActivity extends BaseActivity
     @BindView(R.id.toolbar) Toolbar toolbar;
     @BindView(R.id.pages) ViewPager pages;
     @BindView(R.id.tabs) RecyclerView tabs;
-    @BindView(R.id.fab_menu) RecyclerView fabMenu;
+    @BindView(R.id.fab_menu) View fabMenu;
+    @BindView(R.id.fab_list) RecyclerView fabList;
     @BindView(R.id.fab) FloatingActionButton fab;
     @BindView(R.id.nav_view) NavigationView navView;
     @BindView(R.id.drawer_layout) DrawerLayout drawerLayout;
     @BindView(R.id.path_scroll) HorizontalScrollView pathScroll;
     @BindView(R.id.new_tab) ImageView newTab;
     @BindView(R.id.fab_background) View fabBackground;
+    @BindView(R.id.fab_header) FrameLayout fabHeader;
 
     private MenuItem menuOpen;
     private MenuItem menuCopy;
@@ -104,6 +107,7 @@ public class MainActivity extends BaseActivity
     private String filter;
     private SearchView searchView;
     private AbsHistoryItem searchRoot;
+    private FabMenuHeaderViewHolder fabMenuHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,8 +118,8 @@ public class MainActivity extends BaseActivity
 
 
         fabMenuAdapter = new FabMenuAdapter(this);
-        fabMenu.setLayoutManager(new LinearLayoutManager(this));
-        fabMenu.setAdapter(fabMenuAdapter);
+        fabList.setLayoutManager(new LinearLayoutManager(this));
+        fabList.setAdapter(fabMenuAdapter);
 
         pages.setAdapter(new TabsAdapter(getSupportFragmentManager(), data()));
         pages.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -141,6 +145,9 @@ public class MainActivity extends BaseActivity
 
         requestPermissions(ReqCodes.STORAGE_PERMISSION.code(), R.string.explanation_permission,
                 Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        fabMenuHeader = new FabMenuHeaderViewHolder(fabList, fabHeader, this);
+        closeFabMenu();
     }
 
     private void onCurrentTabChanged(int position) {
@@ -568,25 +575,20 @@ public class MainActivity extends BaseActivity
 
     private void buildFabMenu(boolean scrollToEnd) {
 
-        ArrayList<FabMenuAdapter.Item> fabMenuItems = new ArrayList<>(7 + clipboard().size());
-        fabMenuItems.add(new FabMenuAdapter.NewDirectoryItem(this));
-        fabMenuItems.add(new FabMenuAdapter.SelectAllItem());
+        fabMenuHeader.onShow();
 
-        if (!clipboard().isEmpty()) {
-            fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
-            fabMenuItems.add(new FabMenuAdapter.PasteAllItem(this));
-            fabMenuItems.add(new FabMenuAdapter.ClearItem(this));
+        ArrayList<FabMenuAdapter.Item> fabMenuItems = new ArrayList<>(1 + clipboard().size());
+        fabMenuItems.add(new FabMenuAdapter.HeaderSupportItem(fabMenuHeader.root));
 
-            fabMenuItems.add(new FabMenuAdapter.SeparatorItem());
-            for (ClipboardItem fileItem : clipboard().values()) {
-                fabMenuItems.add(new FabMenuAdapter.FileItem(fileItem));
-            }
+        for (ClipboardItem fileItem : clipboard().values()) {
+            fabMenuItems.add(new FabMenuAdapter.FileItem(fileItem));
         }
 
         fabMenuAdapter.setItems(fabMenuItems);
 
         if (scrollToEnd)
-            fabMenu.scrollToPosition(fabMenuAdapter.getItemCount() - 1);
+            fabList.scrollToPosition(fabMenuAdapter.getItemCount() - 1);
+        fabList.requestLayout();
     }
 
     @Override

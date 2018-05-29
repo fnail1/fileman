@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/fab_header"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="top"
+    tools:background="@color/colorAccent"
+    >
+
+    <LinearLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:layout_marginTop="64dp">
+
+
+        <TextView
+            android:id="@+id/new_dir"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/menu_icon_size"
+            android:drawablePadding="4dp"
+            android:drawableStart="@drawable/ic_add_primary"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:singleLine="true"
+            android:textAppearance="@style/FabMenuTitleTextAppearance"
+            android:text="@string/new_directory"/>
+
+
+        <TextView
+            android:id="@+id/select_all"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/menu_icon_size"
+            android:drawablePadding="4dp"
+            android:drawableStart="@drawable/ic_done_all_primary"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:singleLine="true"
+            android:textAppearance="@style/FabMenuTitleTextAppearance"
+            android:text="@string/select_all"/>
+
+        <ImageView
+            android:id="@+id/separator1"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/colorAccent"
+            android:layerType="software"
+            android:src="@drawable/bg_separator_dots">
+
+        </ImageView>
+
+
+        <TextView
+            android:id="@+id/paste_all"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="4dp"
+            android:drawableStart="@drawable/ic_paste"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:singleLine="true"
+            android:textAppearance="@style/FabMenuTitleTextAppearance"
+            android:text="@string/pasteAll"/>
+
+        <TextView
+            android:id="@+id/clear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawablePadding="4dp"
+            android:drawableStart="@drawable/ic_clear"
+            android:ellipsize="end"
+            android:gravity="center_vertical"
+            android:paddingEnd="4dp"
+            android:paddingStart="4dp"
+            android:paddingTop="4dp"
+            android:singleLine="true"
+            android:textAppearance="@style/FabMenuTitleTextAppearance"
+            android:text="@string/clear"/>
+
+        <ImageView
+            android:id="@+id/separator2"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:background="@color/colorAccent"
+            android:layerType="software"
+            android:src="@drawable/bg_separator_dots">
+
+        </ImageView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/collapsed_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        android:background="@color/colorAccent">
+
+        <ImageView
+            android:id="@+id/new_dir_collapsed"
+            android:layout_width="@dimen/menu_icon_size"
+            android:layout_height="@dimen/menu_icon_size"
+            android:contentDescription="@string/icon"
+            android:padding="4dp"
+            app:srcCompat="@drawable/ic_add_primary"/>
+
+        <ImageView
+            android:id="@+id/select_all_collapsed"
+            android:layout_width="@dimen/menu_icon_size"
+            android:layout_height="@dimen/menu_icon_size"
+            android:contentDescription="@string/icon"
+            android:padding="4dp"
+            app:srcCompat="@drawable/ic_done_all_primary"/>
+
+        <ImageView
+            android:id="@+id/paste_all_collapsed"
+            android:layout_width="@dimen/menu_icon_size"
+            android:layout_height="@dimen/menu_icon_size"
+            android:contentDescription="@string/icon"
+            android:padding="4dp"
+            app:srcCompat="@drawable/ic_paste"/>
+
+        <ImageView
+            android:id="@+id/clear_collapsed"
+            android:layout_width="@dimen/menu_icon_size"
+            android:layout_height="@dimen/menu_icon_size"
+            android:contentDescription="@string/icon"
+            android:padding="4dp"
+            app:srcCompat="@drawable/ic_clear"/>
+    </LinearLayout>
+
+</FrameLayout>

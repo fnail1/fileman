@@ -49,6 +49,7 @@
     <string name="unarchive_dialog_subtitle">Should we keep the source file?</string>
     <string name="compress_files">Compress file(s)</string>
     <string name="search_tab_subtitle">Search:</string>
+    <string name="select_all">Select all</string>
 
 
     <array name="open_type">

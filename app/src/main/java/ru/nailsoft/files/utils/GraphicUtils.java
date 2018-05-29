@@ -52,6 +52,14 @@ public class GraphicUtils {
     private GraphicUtils() {
     }
 
+    public static float normalizeAlpha(float alpha) {
+        if (alpha < 0F)
+            alpha = 0F;
+        else if (alpha > 1F)
+            alpha = 1F;
+        return alpha;
+    }
+
     public static int getMaxTextureSize() {
         if (maxTextureSize == 0) {
             final int[] buff = new int[1];

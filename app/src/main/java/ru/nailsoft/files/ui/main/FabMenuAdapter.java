@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,8 +19,6 @@ import butterknife.ButterKnife;
 import ru.nailsoft.files.R;
 import ru.nailsoft.files.model.TabData;
 import ru.nailsoft.files.service.ClipboardItem;
-import ru.nailsoft.files.toolkit.io.FileOpException;
-import ru.nailsoft.files.toolkit.io.FileUtils;
 
 import static ru.nailsoft.files.App.icons;
 import static ru.nailsoft.files.App.screenMetrics;
@@ -70,12 +66,34 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
+            case R.layout.item_empty_space:
+                return new HeaderSupportViewHolder(inflater.inflate(viewType, parent, false));
             case R.layout.item_fab_menu_simple:
                 return new SimpleItemViewHolder(parent);
             case R.layout.item_fab_menu_separator:
                 return new ItemViewHolder(inflater.inflate(viewType, parent, false));
         }
         throw new IllegalArgumentException(" " + viewType);
+    }
+
+    @Override
+    public void onViewAttachedToWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewAttachedToWindow(holder);
+        switch (holder.getItemViewType()) {
+            case R.layout.item_empty_space:
+                ((HeaderSupportViewHolder) holder).onAttach();
+                break;
+        }
+    }
+
+    @Override
+    public void onViewDetachedFromWindow(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewDetachedFromWindow(holder);
+        switch (holder.getItemViewType()) {
+            case R.layout.item_empty_space:
+                ((HeaderSupportViewHolder) holder).onDetach();
+                break;
+        }
     }
 
     @Override
@@ -102,8 +120,8 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
 
     protected class SimpleItemViewHolder extends ItemViewHolder
             implements View.OnClickListener {
-        private SimpleItem item;
 
+        private SimpleItem item;
         @BindView(R.id.icon)
         ImageView icon;
 
@@ -142,9 +160,46 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         public void onClick(View v) {
             item.onClick();
         }
+
+    }
+
+    private class HeaderSupportViewHolder extends ItemViewHolder {
+
+        private HeaderSupportItem item;
+        private final MyHeaderLayoutListener headerLayoutListener;
+
+        public HeaderSupportViewHolder(View itemView) {
+            super(itemView);
+            headerLayoutListener = new MyHeaderLayoutListener();
+        }
+
+        @Override
+        public void bind(Item item) {
+            super.bind(item);
+            this.item = ((HeaderSupportItem) item);
+        }
+
+        public void onAttach() {
+            item.headerView.addOnLayoutChangeListener(headerLayoutListener);
+        }
+
+        public void onDetach() {
+            item.headerView.removeOnLayoutChangeListener(headerLayoutListener);
+        }
+
+        private class MyHeaderLayoutListener implements View.OnLayoutChangeListener {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                ViewGroup.LayoutParams layoutParams = itemView.getLayoutParams();
+                layoutParams.width = right - left;
+                layoutParams.height = bottom - top;
+                itemView.setLayoutParams(layoutParams);
+            }
+        }
     }
 
     public static abstract class Item {
+
         MasterInterface callback;
 
         @LayoutRes
@@ -153,6 +208,22 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         void setCallback(MasterInterface callback) {
             this.callback = callback;
         }
+
+    }
+
+    public static class HeaderSupportItem extends Item {
+        private final View headerView;
+
+        public HeaderSupportItem(View root) {
+            super();
+            headerView = root;
+        }
+
+        @Override
+        public int viewType() {
+            return R.layout.item_empty_space;
+        }
+
     }
 
     public static class SeparatorItem extends Item {
@@ -230,8 +301,8 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
     }
 
     public static class SelectAllItem extends CommonItem {
-        SelectAllItem() {
-            super("Select All", null, R.drawable.ic_done_all_primary);
+        SelectAllItem(Context context) {
+            super(context.getResources().getString(R.string.select_all), null, R.drawable.ic_done_all_primary);
         }
 
         @Override
@@ -272,9 +343,11 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         public void onClick() {
             callback.clearClipboard();
         }
+
     }
 
     public interface MasterInterface {
+
 
         void selectAll();
 
@@ -289,5 +362,6 @@ public class FabMenuAdapter extends RecyclerView.Adapter {
         TabData currentTab();
 
         void paste(ClipboardItem file);
+
     }
 }

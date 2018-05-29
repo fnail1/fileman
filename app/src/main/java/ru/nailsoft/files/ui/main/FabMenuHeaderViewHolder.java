@@ -42,7 +42,7 @@ public class FabMenuHeaderViewHolder implements View.OnLayoutChangeListener {
         this(list, LayoutInflater.from(list.getContext()).inflate(R.layout.item_fab_header, (ViewGroup) list.getParent()), master);
     }
 
-    public FabMenuHeaderViewHolder(RecyclerView list, View view, FabMenuAdapter.MasterInterface master) {
+    FabMenuHeaderViewHolder(RecyclerView list, View view, FabMenuAdapter.MasterInterface master) {
         root = view;
         ButterKnife.bind(this, root);
         list.addOnScrollListener(new MyScrollListener());
@@ -92,7 +92,7 @@ public class FabMenuHeaderViewHolder implements View.OnLayoutChangeListener {
     }
 
 
-    protected void onListScroll(int dy) {
+    private void onListScroll(int dy) {
         scrollOffset -= dy;
         container.setY(scrollOffset);
 
@@ -131,7 +131,7 @@ public class FabMenuHeaderViewHolder implements View.OnLayoutChangeListener {
 //            container.getLayoutParams();
     }
 
-    protected void applyScrollOffset(TextView expanded, ImageView collapsed, int offset, int expandedY) {
+    private void applyScrollOffset(TextView expanded, ImageView collapsed, int offset, int expandedY) {
         offset -= expandedY;
         if (offset <= 0) {
             expanded.setVisibility(View.VISIBLE);

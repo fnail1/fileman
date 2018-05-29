@@ -76,16 +76,13 @@ public class FabMenuHeaderViewHolder implements View.OnLayoutChangeListener {
 
     @Override
     public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-        trace("%d", right - left);
-
+//        trace("%d", right - left);
     }
 
     public void onShow() {
         int visibility = clipboard().isEmpty() ? View.GONE : View.VISIBLE;
         pasteAll.setVisibility(visibility);
-        pasteAllCollapsed.setVisibility(visibility);
         clear.setVisibility(visibility);
-        clearCollapsed.setVisibility(visibility);
         separator1.setVisibility(visibility);
         separator2.setVisibility(visibility);
         root.requestLayout();
@@ -102,7 +99,6 @@ public class FabMenuHeaderViewHolder implements View.OnLayoutChangeListener {
 
         if (offset > 0) {
             collapsedContainer.setVisibility(View.VISIBLE);
-//                offset += collapsedContainer.getHeight();
         } else {
             collapsedContainer.setVisibility(View.GONE);
         }
@@ -125,10 +121,8 @@ public class FabMenuHeaderViewHolder implements View.OnLayoutChangeListener {
         applyScrollOffset(pasteAll, pasteAllCollapsed, offset, y);
         y += selectAll.getHeight();
         applyScrollOffset(clear, clearCollapsed, offset, y);
-//            y += pasteAll.getHeight();
 
         optimized = offset > container.getHeight();
-//            container.getLayoutParams();
     }
 
     private void applyScrollOffset(TextView expanded, ImageView collapsed, int offset, int expandedY) {

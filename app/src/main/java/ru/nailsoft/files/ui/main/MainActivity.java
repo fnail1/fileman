@@ -574,7 +574,6 @@ public class MainActivity extends BaseActivity
     }
 
     private void buildFabMenu(boolean scrollToEnd) {
-
         fabMenuHeader.onShow();
 
         ArrayList<FabMenuAdapter.Item> fabMenuItems = new ArrayList<>(1 + clipboard().size());
@@ -586,8 +585,6 @@ public class MainActivity extends BaseActivity
 
         fabMenuAdapter.setItems(fabMenuItems);
 
-        if (scrollToEnd)
-            fabList.scrollToPosition(fabMenuAdapter.getItemCount() - 1);
         fabList.requestLayout();
     }
 
@@ -608,7 +605,8 @@ public class MainActivity extends BaseActivity
             rebuildPath(args);
             restoreSearchView(args);
             tabs.getAdapter().notifyItemChanged(data().tabs.indexOf(args));
-            fab.show();
+            if (!fabMenuOpen)
+                fab.show();
         });
     }
 

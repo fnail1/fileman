@@ -45,6 +45,7 @@
     <string name="delete_single_file_message">Delete file \'%s\' permanently?</string>
     <string name="delete_format_many_message">Delete %d objects permanently?</string>
     <string name="open_file">Open \'%s\' with</string>
+    <string name="share_file">Share \'%s\' with</string>
     <string name="file_size_format">size: %s</string>
     <string name="explanation_permission">File manager is useless if not granted access to storage</string>
     <string name="moving_files">Moving files</string>

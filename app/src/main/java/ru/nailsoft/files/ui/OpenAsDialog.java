@@ -4,6 +4,8 @@ import android.support.v7.app.AlertDialog;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
+import java.io.File;
+
 import ru.nailsoft.files.R;
 import ru.nailsoft.files.model.FileItem;
 import ru.nailsoft.files.ui.base.BaseActivity;
@@ -25,20 +27,20 @@ public class OpenAsDialog {
     }
 
     private static void onMimeTypeSelected(BaseActivity context, FileItem fileItem, int which) {
-        String path = fileItem.file.getAbsolutePath();
+        File path = fileItem.file;
 
         switch (which) {
             case 0: // text
-                ShareHelper.share(context, path, "text/*", ShareHelper.OpenMode.OPEN);
+                ShareHelper.open(context, path, "text/*");
                 break;
             case 1: // image
-                ShareHelper.share(context, path, "image/*", ShareHelper.OpenMode.OPEN);
+                ShareHelper.open(context, path, "image/*");
                 break;
             case 2: // audio
-                ShareHelper.share(context, path, "audio/*", ShareHelper.OpenMode.OPEN);
+                ShareHelper.open(context, path, "audio/*");
                 break;
             case 3: // video
-                ShareHelper.share(context, path, "video/*", ShareHelper.OpenMode.OPEN);
+                ShareHelper.open(context, path, "video/*");
                 break;
         }
     }

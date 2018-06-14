@@ -156,7 +156,7 @@ public class SearchActivity extends BaseActivity implements SearchView.OnQueryTe
             } else if (file.isArchive()) {
                 ExtractDialogFragment.show(context, file);
             } else {
-                ShareHelper.share(context, file.file.getAbsolutePath(), file.mimeType, ShareHelper.OpenMode.OPEN);
+                ShareHelper.open(context, file.file, file.mimeType);
             }
         }
 

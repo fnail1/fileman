@@ -5,11 +5,11 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.DocumentsContract;
+import android.support.v4.content.FileProvider;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 
 import ru.nailsoft.files.R;
@@ -21,7 +21,7 @@ public class ShareHelper {
     public static void share(Context context, Collection<FileItem> files) {
         if (files.size() == 1) {
             FileItem fileItem = files.iterator().next();
-            share(context, fileItem.file.getAbsolutePath(), fileItem.mimeType, OpenMode.SHARE);
+            share(context, fileItem.file, fileItem.mimeType);
             return;
         }
 
@@ -53,7 +53,7 @@ public class ShareHelper {
         String mimeType = iterator.next().mimeType;
         if (mimeType == null)
             return null;
-        while (iterator.hasNext()){
+        while (iterator.hasNext()) {
             String item = iterator.next().mimeType;
             if (!mimeType.equals(item)) {
                 mimeType = null;
@@ -88,18 +88,12 @@ public class ShareHelper {
         return mimeType + '*';
     }
 
-    public static void share(Context context, String path, String mimeType, OpenMode action) {
-        Uri uri = DocumentsContract.buildDocumentUri(context.getApplicationContext().getPackageName() + ".provider", path);
+    public static void open(Context context, File path, String mimeType) {
+        context = context.getApplicationContext();
+        Uri uri = DocumentsContract.buildDocumentUri(context.getPackageName() + ".provider", path.getAbsolutePath());
 
         Intent intent = new Intent();
-        switch (action) {
-            case OPEN:
-                intent.setAction(Intent.ACTION_VIEW);
-                break;
-            case SHARE:
-                intent.setAction(Intent.ACTION_SEND);
-                break;
-        }
+        intent.setAction(Intent.ACTION_VIEW);
         intent.setDataAndType(uri, mimeType);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -108,10 +102,19 @@ public class ShareHelper {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         }
 
-        context.startActivity(Intent.createChooser(intent, context.getString(R.string.open_file, new File(path).getName())));
+        context.startActivity(Intent.createChooser(intent, context.getString(R.string.open_file, path.getName())));
     }
 
-    public enum OpenMode {
-        SHARE, OPEN
+    public static void share(Context context, File file, String mimeType) {
+        context = context.getApplicationContext();
+        Uri uri = DocumentsContract.buildDocumentUri(context.getPackageName() + ".provider", file.getAbsolutePath());
+
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.setType(mimeType);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        context.startActivity(intent);
     }
 }

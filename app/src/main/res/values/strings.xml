@@ -25,12 +25,14 @@
     <string name="icon">icon</string>
     <string name="keep">Keep</string>
     <string name="compress">Compress</string>
+    <string name="paste">Paste</string>
 
     <string name="orderBy">Order by</string>
     <string name="date_modified">Date modified</string>
     <string name="new_directory">New directory</string>
     <string name="copy_content">Copy content</string>
     <string name="cut_content">Cut content</string>
+    <string name="select_all">Select all</string>
     <string name="openAs">Open as...</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -49,7 +51,38 @@
     <string name="unarchive_dialog_subtitle">Should we keep the source file?</string>
     <string name="compress_files">Compress file(s)</string>
     <string name="search_tab_subtitle">Search:</string>
-    <string name="select_all">Select all</string>
+    <string name="confirm_copy_single">Copy &lt;b&gt;%1$s&lt;/b&gt; to &lt;b&gt;%2$s&lt;/b&gt;?</string>
+    <string name="confirm_move_single">Move &lt;b&gt;%1$s&lt;/b&gt; to &lt;b&gt;%2$s&lt;/b&gt;?</string>
+
+    <plurals name="confirm_copy_many">
+        <item quantity="one">Copy &lt;b&gt;%1$s&lt;/b&gt; object to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="few">Copy &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="many">Copy &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+    </plurals>
+
+    <plurals name="confirm_move_many">
+        <item quantity="one">Move &lt;b&gt;%1$s&lt;/b&gt; object to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="few">Move &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="many">Move &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+    </plurals>
+
+    <plurals name="confirm_paste_many_mixed">
+        <item quantity="one">Paste &lt;b&gt;%1$s&lt;/b&gt; object to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="few">Paste &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="many">Paste &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+    </plurals>
+
+    <plurals name="confirm_paste_many_move">
+        <item quantity="one">Move &lt;b&gt;%1$s&lt;/b&gt; object to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="few">Move &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="many">Move &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+    </plurals>
+
+    <plurals name="confirm_paste_many_copy">
+        <item quantity="one">Copy &lt;b&gt;%1$s&lt;/b&gt; object to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="few">Copy &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+        <item quantity="many">Copy &lt;b&gt;%1$s&lt;/b&gt; objects to &lt;b&gt;%2$s&lt;/b&gt;?</item>
+    </plurals>
 
 
     <array name="open_type">

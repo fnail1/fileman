@@ -15,6 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -33,7 +34,9 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -550,21 +553,73 @@ public class MainActivity extends BaseActivity
 
     @Override
     public void pasteAll() {
-        CopyTask task = new CopyTask(clipboard().values(), currentTab());
-        copy().enqueue(task);
-        clipboard().clear();
-        CopyDialogFragment.show(this);
-        closeFabMenu();
+        Collection<ClipboardItem> src = clipboard().values();
+        if (src.size() == 1) {
+            paste(src.iterator().next());
+            return;
+        }
+
+        File where = currentTab().getPath().anchor().getAbsoluteFile();
+        CharSequence message;
+
+        Iterator<ClipboardItem> iterator = src.iterator();
+        boolean removeSource = iterator.next().removeSource;
+        int strRes = selectPasteAllMessage(iterator, removeSource);
+        String html = getResources().getQuantityString(strRes, src.size(), src.size(), where);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            message = Html.fromHtml(html, 0);
+        } else {
+            message = Html.fromHtml(html);
+        }
+        Runnable onComplete = () -> clipboard().clear();
+
+        pasteInternal(src, message, onComplete);
+    }
+
+    protected int selectPasteAllMessage(Iterator<ClipboardItem> iterator, boolean removeSource) {
+        while (iterator.hasNext()) {
+            ClipboardItem clipboardItem = iterator.next();
+            if (removeSource != clipboardItem.removeSource)
+                return R.plurals.confirm_paste_many_mixed;
+        }
+        if (removeSource)
+            return R.plurals.confirm_paste_many_move;
+        else
+            return R.plurals.confirm_paste_many_copy;
     }
 
     @Override
-    public void paste(ClipboardItem file) {
-        CopyTask task = new CopyTask(Collections.singleton(file), currentTab());
-        copy().enqueue(task);
-        clipboard().remove(file);
-        CopyDialogFragment.show(this);
-        closeFabMenu();
+    public void paste(final ClipboardItem file) {
+        String what = file.file.name;
+        File where = currentTab().getPath().anchor().getAbsoluteFile();
+        Runnable onComplete = () -> clipboard().remove(file);
 
+        int msgResId = file.removeSource
+                ? R.string.confirm_move_single
+                : R.string.confirm_copy_single;
+        String html = getString(msgResId, what, where);
+        CharSequence message = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N
+                ? Html.fromHtml(html, 0)
+                : Html.fromHtml(html);
+
+        pasteInternal(Collections.singleton(file), message, onComplete);
+
+    }
+
+    protected void pasteInternal(Collection<ClipboardItem> src, CharSequence message, Runnable onComplete) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.pasteAll)
+                .setMessage(message)
+                .setPositiveButton(R.string.paste, (dialog, which) -> {
+
+                    CopyTask task = new CopyTask(src, currentTab());
+                    copy().enqueue(task);
+                    onComplete.run();
+                    CopyDialogFragment.show(MainActivity.this);
+                    closeFabMenu();
+
+                })
+                .show();
     }
 
     @Override

@@ -71,18 +71,21 @@ public class MainActivityData {
     public void onTabPathChanged(TabData tab) {
         updateTabNamesSync();
         tabsChanged.fire(tab);
-        List<FileItem> cached = cache.get(tab.getPath().id());
+
+        AbsHistoryItem path = tab.getPath();
+
+        List<FileItem> cached = cache.get(path.id());
         boolean fromCache = cached != null;
         if (fromCache) {
             tab.setFiles(cached);
         }
 
         ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(() -> {
-            List<FileItem> files = tab.getPath().readFiles();
+            List<FileItem> files = path.readFiles();
 
             if ((cached == null || cached.isEmpty()) && !files.isEmpty()) {
-                cache.put(tab.getPath().id(), files);
-                tab.setFiles(files);
+                cache.put(path.id(), files);
+                tab.setFiles(path, files);
             }
 
             long t0 = SystemClock.elapsedRealtime();
@@ -98,7 +101,7 @@ public class MainActivityData {
                 }
             }
 
-            tab.setFiles(files);
+            tab.setFiles(path, files);
         });
     }
 

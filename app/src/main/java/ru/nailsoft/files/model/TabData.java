@@ -22,7 +22,7 @@ public class TabData {
     private final Stack<AbsHistoryItem> history = new Stack<>();
     private List<FileItem> files = Collections.emptyList();
     public final HashSet<FileItem> selection = new HashSet<>();
-//    public String title;
+    //    public String title;
     public List<FileItem> displayFiles = Collections.emptyList();
     private Order order = Order.NAME_ASC;
 
@@ -142,6 +142,17 @@ public class TabData {
     public void setFiles(List<FileItem> files) {
         this.files = files;
         onDataChanged();
+    }
+
+    public void setFiles(AbsHistoryItem path, List<FileItem> files) {
+        if (!ThreadPool.isUiThread()) {
+            ThreadPool.UI.post(() -> setFiles(path, files));
+        } else {
+            if (path.id().equals(getPath().id())) {
+                this.files = files;
+                onDataChanged();
+            }
+        }
     }
 
     public void setOrder(Order order) {

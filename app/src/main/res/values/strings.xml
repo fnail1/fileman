@@ -54,6 +54,7 @@
     <string name="search_tab_subtitle">Search:</string>
     <string name="confirm_copy_single">Copy &lt;b&gt;%1$s&lt;/b&gt; to &lt;b&gt;%2$s&lt;/b&gt;?</string>
     <string name="confirm_move_single">Move &lt;b&gt;%1$s&lt;/b&gt; to &lt;b&gt;%2$s&lt;/b&gt;?</string>
+    <string name="error_share_app_not_found">Application not available</string>
 
     <plurals name="confirm_copy_many">
         <item quantity="one">Copy &lt;b&gt;%1$s&lt;/b&gt; object to &lt;b&gt;%2$s&lt;/b&gt;?</item>

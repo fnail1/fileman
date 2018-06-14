@@ -421,7 +421,7 @@ public class MainActivity extends BaseActivity
         ArrayList<FileItem> files = new ArrayList<>(tab.selection);
         ShareHelper.share(this, files);
         tab.selection.clear();
-        tab.onDataChanged();
+        data().onSelectionChanged(tab);
         toggleActionMode(ActionMode.NONE);
     }
 

@@ -77,7 +77,7 @@ public class MainActivityData {
         List<FileItem> cached = cache.get(path.id());
         boolean fromCache = cached != null;
         if (fromCache) {
-            tab.setFiles(cached);
+            tab.setFiles(path, cached);
         }
 
         ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(() -> {

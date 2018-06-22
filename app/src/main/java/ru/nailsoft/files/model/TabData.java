@@ -85,8 +85,10 @@ public class TabData {
     }
 
     public void onDataChanged() {
-        if (ThreadPool.isUiThread())
-            safeThrow(new IllegalAccessException("Do not call me from main thread"));
+        if (ThreadPool.isUiThread()) {
+            ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(this::onDataChanged);
+            return;
+        }
 
         List<FileItem> filtered = getPath().applyFilter(files);
 
@@ -138,20 +140,10 @@ public class TabData {
         return files;
     }
 
-    @UiThread
-    public void setFiles(List<FileItem> files) {
-        this.files = files;
-        onDataChanged();
-    }
-
     public void setFiles(AbsHistoryItem path, List<FileItem> files) {
-        if (!ThreadPool.isUiThread()) {
-            ThreadPool.UI.post(() -> setFiles(path, files));
-        } else {
-            if (path.id().equals(getPath().id())) {
-                this.files = files;
-                onDataChanged();
-            }
+        if (path.id().equals(getPath().id())) {
+            this.files = files;
+            onDataChanged();
         }
     }
 

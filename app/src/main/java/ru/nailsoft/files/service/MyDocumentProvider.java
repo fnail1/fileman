@@ -94,7 +94,7 @@ public class MyDocumentProvider extends DocumentsProvider {
             throw new FileNotFoundException(documentId);
 
         MatrixCursor.RowBuilder row = cursor.newRow();
-        row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, doc.file.getAbsolutePath());
+        row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, doc.id());
         row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, doc.mimeType);
         row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, doc.name);
         row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, 0);
@@ -106,8 +106,7 @@ public class MyDocumentProvider extends DocumentsProvider {
 
     @Nullable
     private FileItem getFileForDocId(String documentId) {
-        File file = new File(documentId);
-        return Query.query(data().tabs).extract(t -> t.getFiles(tabDataFriend)).first(f -> f.file.equals(file));
+        return Query.query(data().tabs).extract(t -> t.getFiles(tabDataFriend)).first(f -> f.id().equals(documentId));
     }
 
     @Override
@@ -122,7 +121,7 @@ public class MyDocumentProvider extends DocumentsProvider {
             if (tab.getPath().id().equals(parentDocumentId)) {
                 for (FileItem file : tab.getFiles(tabDataFriend)) {
                     MatrixCursor.RowBuilder row = cursor.newRow();
-                    row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, file.file.getAbsolutePath());
+                    row.add(DocumentsContract.Document.COLUMN_DOCUMENT_ID, file.id());
                     row.add(DocumentsContract.Document.COLUMN_MIME_TYPE, file.mimeType);
                     row.add(DocumentsContract.Document.COLUMN_DISPLAY_NAME, file.name);
                     row.add(DocumentsContract.Document.COLUMN_LAST_MODIFIED, 0);
@@ -155,7 +154,7 @@ public class MyDocumentProvider extends DocumentsProvider {
         if (isWrite) {
             // Attach a close listener if the document is opened in write mode.
             try {
-                return ParcelFileDescriptor.open(file.file, accessMode, ThreadPool.UI,
+                return ParcelFileDescriptor.open(file.getFile(), accessMode, ThreadPool.UI,
                         e -> {
                             trace();
                             if (e != null)
@@ -166,7 +165,7 @@ public class MyDocumentProvider extends DocumentsProvider {
                         + documentId + " and mode " + mode);
             }
         } else {
-            return ParcelFileDescriptor.open(file.file, accessMode);
+            return ParcelFileDescriptor.open(file.getFile(), accessMode);
         }
     }
 

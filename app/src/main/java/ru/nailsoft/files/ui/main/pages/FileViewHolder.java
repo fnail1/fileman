@@ -58,12 +58,8 @@ public class FileViewHolder extends RecyclerView.ViewHolder implements View.OnCl
                 .round(screenMetrics().iconRoundRadius, screenMetrics().iconRoundRadius)
                 .commit();
 
-        if (file.detailsResolved) {
-            subtitle.setVisibility(View.VISIBLE);
-            subtitle.setText(file.getSubtitle(subtitle.getResources()));
-        } else {
-            subtitle.setVisibility(View.GONE);
-        }
+        subtitle.setVisibility(View.VISIBLE);
+        subtitle.setText(file.getSubtitle(subtitle.getResources()));
 
         if (file.directory) {
             if (file.hidden)

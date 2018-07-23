@@ -55,8 +55,8 @@ public class CopyTask extends AbsTask {
         ArrayList<CopyItem> queue = new ArrayList<>(src.size());
         File dstPath = ((DirectoryHistoryItem) dst.getPath()).path;
         for (ClipboardItem file : src) {
-            listFiles(file, file.file.file, dstPath, queue);
-            setCurrentFile(file.file.file);
+            listFiles(file, file.file.getFile(), dstPath, queue);
+            setCurrentFile(file.file.getFile());
         }
 
         setCount(queue.size());
@@ -134,7 +134,7 @@ public class CopyTask extends AbsTask {
             else
                 FileUtils.copyFile(src, out);
 
-            if (clipboardItem.file.file == src) {
+            if (clipboardItem.file.getFile() == src) {
                 task.dst.onPaste(out);
             }
         }
@@ -157,7 +157,7 @@ public class CopyTask extends AbsTask {
                 try {
                     FileUtils.rename(src, out);
                     complete = true;
-                    if (clipboardItem.file.file == src) {
+                    if (clipboardItem.file.getFile() == src) {
                         task.dst.onPaste(out);
                     }
                 } catch (IOException e) {
@@ -167,7 +167,7 @@ public class CopyTask extends AbsTask {
                 if (!out.mkdir())
                     throw new FileOpException(FileOpException.FileOp.MKDIR, out);
 
-                if (clipboardItem.file.file == src) {
+                if (clipboardItem.file.getFile() == src) {
                     task.dst.onPaste(out);
                 }
             }
@@ -186,7 +186,7 @@ public class CopyTask extends AbsTask {
 
     private static class CopyArchive extends CopyItem {
         CopyArchive(ClipboardItem src, File dst) {
-            super(src, src.file.file, dst);
+            super(src, src.file.getFile(), dst);
         }
 
         @Override

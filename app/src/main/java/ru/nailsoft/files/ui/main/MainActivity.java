@@ -2,6 +2,8 @@ package ru.nailsoft.files.ui.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.design.widget.FloatingActionButton;
@@ -57,6 +59,7 @@ import ru.nailsoft.files.toolkit.concurrent.ExclusiveExecutor2;
 import ru.nailsoft.files.toolkit.io.FileOpException;
 import ru.nailsoft.files.toolkit.io.FileUtils;
 import ru.nailsoft.files.ui.CopyDialogFragment;
+import ru.nailsoft.files.ui.ExtractDialogFragment;
 import ru.nailsoft.files.ui.OpenAsDialog;
 import ru.nailsoft.files.ui.ReqCodes;
 import ru.nailsoft.files.ui.base.BaseActivity;
@@ -67,6 +70,7 @@ import ru.nailsoft.files.utils.Utils;
 import static ru.nailsoft.files.App.clipboard;
 import static ru.nailsoft.files.App.copy;
 import static ru.nailsoft.files.App.data;
+import static ru.nailsoft.files.diagnostics.Logger.trace;
 
 public class MainActivity extends BaseActivity
         implements
@@ -151,6 +155,30 @@ public class MainActivity extends BaseActivity
 
         fabMenuHeader = new FabMenuHeaderViewHolder(fabList, fabHeader, this);
         closeFabMenu();
+        handleIntent(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleIntent(intent);
+    }
+
+    private void handleIntent(Intent intent) {
+        String action = intent.getAction();
+        if (action == null)
+            return;
+
+        switch (action) {
+            case Intent.ACTION_VIEW:
+                Uri data = intent.getData();
+                if (data != null) {
+                    FileItem fileItem = new FileItem(data);
+                    ExtractDialogFragment.show(this, fileItem);
+                }
+                trace(String.valueOf(data));
+                break;
+        }
     }
 
     private void onCurrentTabChanged(int position) {
@@ -363,9 +391,9 @@ public class MainActivity extends BaseActivity
             case 1:
                 FileItem file = tab.selection.iterator().next();
                 if (file.directory)
-                    message = getString(R.string.delete_single_dir_message, file.file.getName());
+                    message = getString(R.string.delete_single_dir_message, file.name);
                 else
-                    message = getString(R.string.delete_single_file_message, file.file.getName());
+                    message = getString(R.string.delete_single_file_message, file.name);
                 break;
             default:
                 message = getString(R.string.delete_format_many_message, tab.selection.size());

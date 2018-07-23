@@ -27,7 +27,7 @@ public class OpenAsDialog {
     }
 
     private static void onMimeTypeSelected(BaseActivity context, FileItem fileItem, int which) {
-        File path = fileItem.file;
+        File path = fileItem.getFile();
 
         switch (which) {
             case 0: // text

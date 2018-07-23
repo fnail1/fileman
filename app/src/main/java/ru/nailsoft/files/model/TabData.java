@@ -141,9 +141,12 @@ public class TabData {
     }
 
     public void setFiles(AbsHistoryItem path, List<FileItem> files) {
-        if (path.id().equals(getPath().id())) {
-            this.files = files;
-            onDataChanged();
+        if (!ThreadPool.isUiThread()) {
+            ThreadPool.UI.post(() -> setFiles(path, files));
+        } else {
+            if (path.id().equals(getPath().id())) {
+                this.files = files;
+            }
         }
     }
 
@@ -210,7 +213,7 @@ public class TabData {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
 
-                    return Long.compare(o1.file.lastModified(), o2.file.lastModified());
+                    return Long.compare(o1.lastModified(), o2.lastModified());
                 };
             }
         },
@@ -221,7 +224,7 @@ public class TabData {
                     if (o1.directory != o2.directory)
                         return o1.directory ? -1 : 1;
 
-                    return Long.compare(o2.file.lastModified(), o1.file.lastModified());
+                    return Long.compare(o2.lastModified(), o1.lastModified());
                 };
             }
         };

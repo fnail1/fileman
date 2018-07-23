@@ -87,7 +87,7 @@ public class DirectoryHistoryItem extends AbsHistoryItem {
             }
 
 
-            if (file.file.isDirectory()) {
+            if (file.directory) {
                 name = searchRecursive(file.file, filter);
                 if (name != null) {
                     i = name.toLowerCase().indexOf(filter);

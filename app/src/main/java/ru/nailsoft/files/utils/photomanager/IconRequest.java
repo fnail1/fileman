@@ -67,7 +67,7 @@ public final class IconRequest<TView> implements Runnable {
         this.size = size;
         this.extraEffect = extraEffect;
         this.viewHolder = viewHolder;
-        cacheKey = file.file.getAbsolutePath();
+        cacheKey = file.id();
     }
 
 
@@ -125,7 +125,7 @@ public final class IconRequest<TView> implements Runnable {
 
         if (file.mimeType != null && icon == null) {
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri uri = DocumentsContract.buildDocumentUri(app().getApplicationContext().getPackageName() + ".provider", file.file.getAbsolutePath());
+            Uri uri = file.getUri();
             intent.setData(uri);
             intent.setType(file.mimeType);
 
@@ -148,7 +148,7 @@ public final class IconRequest<TView> implements Runnable {
 
         if (file.mimeType != null && file.mimeType.startsWith("image/")) {
             try {
-                Bitmap bitmap = GraphicUtils.decodeUri(file.file.getAbsolutePath(), screenMetrics().icon.width, screenMetrics().icon.height);
+                Bitmap bitmap = GraphicUtils.decodeUri(file.getFile().getAbsolutePath(), screenMetrics().icon.width, screenMetrics().icon.height);
                 if (bitmap != null) {
                     iconsManager.cache.update(cacheKey, bitmap);
                     icon = new BitmapDrawable(app().getResources(), bitmap);

@@ -77,13 +77,18 @@ public class ExtractDialogFragment extends AppCompatDialogFragment implements Di
         title.setText(file.name);
 
         copy.setOnCheckedChangeListener(this);
-        cut.setOnCheckedChangeListener(this);
+        if (file.readOnly) {
+            cut.setVisibility(View.GONE);
+            copy.setVisibility(View.GONE);
+        } else {
+            cut.setOnCheckedChangeListener(this);
+        }
         copy.setChecked(true);
         onCheckedChanged(copy, true);
     }
 
     private void onPositiveButtonClick(DialogInterface dialogInterface, int button) {
-        clipboard().addAll(Collections.singleton(file), cut.isChecked(), true);
+        clipboard().addAll(Collections.singleton(file), !file.readOnly && cut.isChecked(), true);
     }
 
 

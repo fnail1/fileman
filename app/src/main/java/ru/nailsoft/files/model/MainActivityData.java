@@ -8,6 +8,7 @@ import android.support.annotation.UiThread;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import ru.nailsoft.files.toolkit.ThreadPool;
 import ru.nailsoft.files.toolkit.events.ObservableEvent;
 
 import static ru.nailsoft.files.App.app;
+import static ru.nailsoft.files.diagnostics.Logger.trace;
 import static ru.nailsoft.files.toolkit.collections.Query.query;
 
 @SuppressWarnings("WeakerAccess")
@@ -82,6 +84,7 @@ public class MainActivityData {
 
         ThreadPool.QUICK_EXECUTORS.getExecutor(ThreadPool.Priority.MEDIUM).execute(() -> {
             List<FileItem> files = path.readFiles();
+            ArrayList<FileItem> copy = new ArrayList<>(files);
 
             if ((cached == null || cached.isEmpty()) && !files.isEmpty()) {
                 cache.put(path.id(), files);
@@ -89,8 +92,8 @@ public class MainActivityData {
             }
 
             long t0 = SystemClock.elapsedRealtime();
-            for (int i = 0; i < files.size(); i++) {
-                FileItem file = files.get(i);
+            for (int i = 0; i < copy.size(); i++) {
+                FileItem file = copy.get(i);
                 file.resolveDetails();
                 if (!fromCache && ((i + 1) % 20) == 9) {
                     long t = SystemClock.elapsedRealtime();
@@ -101,7 +104,7 @@ public class MainActivityData {
                 }
             }
 
-            tab.setFiles(path, files);
+            tab.onDataChanged();
         });
     }
 

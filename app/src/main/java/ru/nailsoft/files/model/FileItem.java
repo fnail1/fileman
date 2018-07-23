@@ -1,14 +1,10 @@
 package ru.nailsoft.files.model;
 
-import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.provider.DocumentsContract;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
@@ -36,6 +32,7 @@ public final class FileItem implements Cloneable, Parcelable {
     public CharSequence title;
     public CharSequence subtitle;
     public boolean detailsResolved;
+    public boolean readOnly;
 
     public FileItem(File file) {
         this(file, file.isDirectory());
@@ -54,6 +51,22 @@ public final class FileItem implements Cloneable, Parcelable {
             ext = "";
         }
 
+    }
+
+    public FileItem(Uri data) {
+        file = new File(data.getPath());
+        directory = false;
+        String path = data.getPath();
+        title = name = path.substring(path.lastIndexOf("/"));
+        hidden = false;
+        order = name;
+        int idx = name.lastIndexOf('.');
+        if (idx > 0) {
+            ext = name.substring(idx);
+        } else {
+            ext = "";
+        }
+        readOnly = true;
     }
 
     protected FileItem(Parcel in) {
@@ -101,6 +114,9 @@ public final class FileItem implements Cloneable, Parcelable {
     };
 
     public void resolveDetails() {
+        if (name.startsWith("846")) {
+            trace(name);
+        }
         size = FileUtils.getLength(file);
         length = FileUtils.formatLength(size);
         if (!directory) {
@@ -126,38 +142,28 @@ public final class FileItem implements Cloneable, Parcelable {
             type = "text/*";
 
         return type;
-//        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-//        if (extension != null) {
-//            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-//        }
-//        return type;
     }
 
-//    public void open(Context context) {
-//        Uri uri = DocumentsContract.buildDocumentUri(context.getApplicationContext().getPackageName() + ".provider", file.getAbsolutePath());
-//
-//        if (mimeType == null)
-//            mimeType = resolveMimeType(file, uri);
-//
-//        Intent intent = new Intent();
-//        intent.setAction(Intent.ACTION_VIEW);
-//        intent.setDataAndType(uri, mimeType);
-//        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-//        } else {
-//            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-//        }
-//
-//        context.startActivity(Intent.createChooser(intent, context.getString(R.string.open_file, name)));
-//    }
 
     public CharSequence getSubtitle(Resources resx) {
+        if (name.startsWith("846")) {
+            trace();
+        }
         if (subtitle != null)
             return subtitle;
-        return resx.getString(R.string.file_size_format, length);
+        if (detailsResolved)
+            return resx.getString(R.string.file_size_format, length);
+        else
+            return "processing...";
     }
 
+    public boolean isArchive() {
+        switch (ext.toLowerCase()) {
+            case ".zip":
+                return true;
+        }
+        return false;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -183,11 +189,19 @@ public final class FileItem implements Cloneable, Parcelable {
         }
     }
 
-    public boolean isArchive() {
-        switch (ext.toLowerCase()) {
-            case ".zip":
-                return true;
-        }
-        return false;
+    public long lastModified() {
+        return file.lastModified();
+    }
+
+    public String id() {
+        return file.getAbsolutePath();
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public Uri getUri() {
+        return DocumentsContract.buildDocumentUri(app().getApplicationContext().getPackageName() + ".provider", file.getAbsolutePath());
     }
 }

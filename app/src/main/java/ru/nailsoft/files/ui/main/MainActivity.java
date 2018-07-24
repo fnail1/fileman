@@ -274,6 +274,12 @@ public class MainActivity extends BaseActivity
         menuSearch = menu.findItem(R.id.search);
         searchView = ((SearchView) menuSearch.getActionView());
         searchView.setOnQueryTextListener(this);
+        searchView.setOnCloseListener(() -> {
+            menuClose.setVisible(true);
+            return false;
+        });
+        searchView.setOnSearchClickListener(v -> menuClose.setVisible(false));
+
         menuZip = menu.findItem(R.id.zip);
         menuClose = menu.findItem(R.id.close);
         actionMode = ActionMode.MANY;
@@ -296,7 +302,7 @@ public class MainActivity extends BaseActivity
         menuShare.setVisible(mode != ActionMode.NONE);
         menuSearch.setVisible(mode == ActionMode.NONE);
         menuZip.setVisible(mode != ActionMode.NONE);
-        menuClose.setVisible(true);
+        menuClose.setVisible(searchView.isIconified());
         path.setVisibility(mode == ActionMode.NONE ? View.VISIBLE : View.GONE);
         actionMode = mode;
     }

@@ -141,12 +141,9 @@ public class TabData {
     }
 
     public void setFiles(AbsHistoryItem path, List<FileItem> files) {
-        if (!ThreadPool.isUiThread()) {
-            ThreadPool.UI.post(() -> setFiles(path, files));
-        } else {
-            if (path.id().equals(getPath().id())) {
-                this.files = files;
-            }
+        if (path.id().equals(getPath().id())) {
+            this.files = files;
+            onDataChanged();
         }
     }
 

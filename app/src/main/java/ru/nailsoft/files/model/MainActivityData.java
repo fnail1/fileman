@@ -58,7 +58,7 @@ public class MainActivityData {
 
     public MainActivityData(Context context) {
         newTab().navigate(Environment.getExternalStorageDirectory());
-        searchTabSubtitlePrefix = context.getString(R.string.search_tab_subtitle);
+        searchTabSubtitlePrefix = "\uD83D\uDD0E ";
     }
 
     @SuppressWarnings("UnusedReturnValue")
@@ -103,8 +103,11 @@ public class MainActivityData {
                     }
                 }
             }
-
-            tab.onDataChanged();
+            if (fromCache) {
+                tab.setFiles(path, files);
+            } else {
+                onTabDataChanged(tab);
+            }
         });
     }
 

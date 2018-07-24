@@ -86,7 +86,7 @@ public class MainActivityData {
             List<FileItem> files = path.readFiles();
             ArrayList<FileItem> copy = new ArrayList<>(files);
 
-            if ((cached == null || cached.isEmpty()) && !files.isEmpty()) {
+            if (cached == null || cached.isEmpty()) {
                 cache.put(path.id(), files);
                 tab.setFiles(path, files);
             }

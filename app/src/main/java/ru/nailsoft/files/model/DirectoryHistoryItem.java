@@ -72,7 +72,7 @@ public class DirectoryHistoryItem extends AbsHistoryItem {
         String filter = this.filter.toLowerCase();
 
         if (TextUtils.isEmpty(filter))
-            return files;
+            return new ArrayList<>(files);
 
         ArrayList<FileItem> filtered = new ArrayList<>(files.size());
 

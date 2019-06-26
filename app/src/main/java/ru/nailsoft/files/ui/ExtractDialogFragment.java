@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatDialogFragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.LinearLayout;
@@ -33,6 +35,8 @@ public class ExtractDialogFragment extends AppCompatDialogFragment implements Di
     @BindView(R.id.root) LinearLayout root;
     @BindView(R.id.cut) RadioButton cut;
     @BindView(R.id.copy) RadioButton copy;
+    @BindView(R.id.subtitle) TextView subtitle;
+    Unbinder unbinder1;
     private Unbinder unbinder;
     private Button buttonPositive;
     private FileItem file;
@@ -80,6 +84,7 @@ public class ExtractDialogFragment extends AppCompatDialogFragment implements Di
         if (file.readOnly) {
             cut.setVisibility(View.GONE);
             copy.setVisibility(View.GONE);
+            subtitle.setVisibility(View.GONE);
         } else {
             cut.setOnCheckedChangeListener(this);
         }

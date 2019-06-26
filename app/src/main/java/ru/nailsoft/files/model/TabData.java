@@ -1,7 +1,6 @@
 package ru.nailsoft.files.model;
 
 import android.os.Parcelable;
-import android.support.annotation.UiThread;
 
 import java.io.File;
 import java.util.Collection;
@@ -13,9 +12,6 @@ import java.util.Stack;
 
 import ru.nailsoft.files.service.MyDocumentProvider;
 import ru.nailsoft.files.toolkit.ThreadPool;
-
-import static ru.nailsoft.files.diagnostics.DebugUtils.safeThrow;
-import static ru.nailsoft.files.toolkit.collections.Query.query;
 
 public class TabData {
     final MainActivityData data;
